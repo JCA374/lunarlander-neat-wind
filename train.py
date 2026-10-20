@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Train NEAT on LunarLander-v2.
+"""Train NEAT on LunarLander-v2 with wind.
 
     python train.py                          # new run in runs/run_YYYYMMDD_HHMMSS/
     python train.py --generations 300 --workers 8
     python train.py --resume runs/<run>/checkpoints/gen-120   # continue an interrupted run
 
 Each generation:
-  1. every genome is turned into a network and flies a few episodes (fitness = average reward),
+  1. every genome is turned into a network and flies a few windy episodes
+     (fitness = average reward + a bonus for landing in the middle between the flags),
   2. the generation's best genome flies 100 *unseen* episodes (validation),
   3. NEAT keeps the best of each species, breeds and mutates the next generation.
 Everything is logged to the run directory as it happens (see neat_lander/runs.py).
@@ -91,8 +92,9 @@ def main():
         w = json.load(fh)
     print(f'\nDone in {(time.time() - t0) / 60:.1f} min.')
     print(f"Winner: generation {w['generation']}, {w['hidden']} hidden nodes, {w['connections']} "
-          f"connections, {w['validation']['fitness']:.1f} average reward and "
-          f"{100 * w['validation']['landed']:.0f}% landings on 100 unseen episodes.")
+          f"connections, {w['validation']['reward']:.1f} average reward, "
+          f"{100 * w['validation']['landed']:.0f}% landings and {100 * w['validation']['centred']:.0f}% "
+          f"centred on 100 unseen episodes.")
     if recorder.solved_at is not None:
         print(f'Solved (>= {config.fitness_threshold:.0f}) first at generation {recorder.solved_at}.')
     print(f'\nNext:  python demo.py {run_dir}\n       python visualize_all.py {run_dir}')

@@ -1,4 +1,6 @@
-"""Flying one LunarLander episode with a NEAT network."""
+"""Flying one LunarLander episode with a NEAT network, in wind."""
+
+import math
 
 import gymnasium as gym
 import neat
@@ -6,12 +8,44 @@ import numpy as np
 
 ENV_ID = 'LunarLander-v2'
 MAX_STEPS = 1000
+# Wind: a steady-ish sideways force plus a turning torque, both slowly varying gusts. The lander
+# does not observe the wind; it has to notice the drift in its own velocity and correct for it.
+WIND_POWER = 15.0
+TURBULENCE_POWER = 1.5
+# Landing between the flags (x = -0.2 .. 0.2 in observation units) earns up to CENTRE_BONUS extra
+# fitness, the full amount exactly in the middle, falling to 0 at the flags.
+CENTRE_BONUS = 50.0
+PAD_HALF_WIDTH = 0.2
+CENTRED = 0.1                   # |x| below this counts as a centred landing
 # Render geometry of the 600x400 rgb_array frame (30 px per metre), used to draw flight paths
 VIEW_W, VIEW_H, SCALE = 600, 400, 30.0
 
 
 def make_env(render_mode=None):
-    return gym.make(ENV_ID, render_mode=render_mode)
+    return gym.make(ENV_ID, render_mode=render_mode, enable_wind=True, wind_power=WIND_POWER,
+                    turbulence_power=TURBULENCE_POWER)
+
+
+def seed_wind(env, seed):
+    """Gymnasium draws the gust phase from the global numpy RNG once per env, not from the reset
+    seed. Tie it to the seed, so one seed means the same wind for every genome, every time."""
+    rng = np.random.default_rng([int(seed), 7])
+    env.unwrapped.wind_idx = int(rng.integers(-9999, 9999))
+    env.unwrapped.torque_idx = int(rng.integers(-9999, 9999))
+
+
+def wind_force(env):
+    """The sideways wind force the next env.step will apply (the same formula as gymnasium)."""
+    u = env.unwrapped
+    if u.legs[0].ground_contact or u.legs[1].ground_contact:
+        return 0.0
+    k = u.wind_idx
+    return math.tanh(math.sin(0.02 * k) + math.sin(math.pi * 0.01 * k)) * u.wind_power
+
+
+def centre_bonus(landed, x):
+    """Extra fitness for landing near the middle between the flags."""
+    return CENTRE_BONUS * max(0.0, 1.0 - abs(x) / PAD_HALF_WIDTH) if landed else 0.0
 
 
 def make_net(genome, config):
@@ -28,13 +62,17 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
 
     frames: rgb arrays, path: lander positions in frame pixels,
     trace: per-step observation, action and every node's value (for drawing a live network).
+    'reward' is the plain env score; 'fitness' adds the centre-landing bonus.
+    With frames, path or trace, 'wind' holds the sideways wind force at each step.
     """
     own_env = env is None
     if own_env:
         env = make_env('rgb_array' if frames else None)
+    seed_wind(env, seed)        # before reset: reset already takes one step in the wind
     obs, _ = env.reset(seed=int(seed))
     out = {'seed': int(seed), 'reward': 0.0, 'frames': [], 'path': [], 'states': [],
-           'actions': [], 'values': []}
+           'actions': [], 'values': [], 'wind': []}
+    record_wind = frames or path or trace
     terminated = truncated = False
     reward = 0.0
     for _ in range(MAX_STEPS):
@@ -42,6 +80,8 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
             out['frames'].append(env.render())
         if path:
             out['path'].append(_lander_px(env))
+        if record_wind:
+            out['wind'].append(wind_force(env))
         action = choose_action(net, obs)
         if trace:
             out['states'].append(np.array(obs))
@@ -66,6 +106,8 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
     else:
         out['outcome'] = 'timeout'
     out['landed'] = out['outcome'] == 'landed'
+    out['x_final'] = float(obs[0])
+    out['fitness'] = out['reward'] + centre_bonus(out['landed'], out['x_final'])
     return out
 
 

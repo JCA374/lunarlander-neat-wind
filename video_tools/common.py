@@ -148,7 +148,7 @@ class Run:
         self.threshold = self.config.fitness_threshold
         solved = [r['generation'] for r in self.validation if r['reward'] >= self.threshold]
         self.solved_at = solved[0] if solved else None
-        self.winner_gen = max(self.validation, key=lambda r: r['reward'])['generation']
+        self.winner_gen = max(self.validation, key=lambda r: r['fitness'])['generation']
 
     def size(self, genome):
         return network_size(genome, self.config)

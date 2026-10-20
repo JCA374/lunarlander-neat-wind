@@ -20,7 +20,10 @@ FITNESS_COLS = ['generation', 'best', 'mean', 'median', 'worst', 'std', 'species
 COMPLEXITY_COLS = ['generation', 'mean_hidden', 'mean_conns', 'best_hidden', 'best_conns',
                    'max_hidden', 'max_conns']
 SPECIES_COLS = ['generation', 'species', 'size', 'age', 'best', 'mean', 'stagnation']
-VALIDATION_COLS = ['generation', 'genome', 'reward', 'landed', 'crashed', 'steps', 'hidden', 'conns']
+# fitness = reward + centre bonus (what selects the winner); reward = the plain env score (what
+# 'solved' is judged on); abs_x = mean landing distance from the middle, 1.0 = at a flag
+VALIDATION_COLS = ['generation', 'genome', 'fitness', 'reward', 'landed', 'centred', 'abs_x',
+                   'crashed', 'steps', 'hidden', 'conns']
 POPULATION_COLS = ['generation', 'genome', 'species', 'fitness', 'landed', 'crashed', 'steps',
                    'hidden', 'conns', 'parent1', 'parent2']
 
@@ -87,8 +90,8 @@ class EvolutionRecorder(BaseReporter):
             self.innovations = {kind: {k: g for k, g in d.items() if g < generation}
                                 for kind, d in inn.items()}
         for row in runs.read_csv(self.run_dir, 'validation'):
-            if row['reward'] > self.winner_score:
-                self.winner_score = row['reward']
+            if row['fitness'] > self.winner_score:
+                self.winner_score = row['fitness']
             if self.solved_at is None and row['reward'] >= self.config.fitness_threshold:
                 self.solved_at = row['generation']
 
@@ -129,8 +132,9 @@ class EvolutionRecorder(BaseReporter):
         # The generation's champion on 100 unseen episodes
         val = self.evaluator.validate(best_genome)
         self._append('validation', [[gen, best_genome.key, f"{val['fitness']:.2f}",
-                                     f"{val['landed']:.3f}", f"{val['crashed']:.3f}",
-                                     f"{val['steps']:.1f}", *best_size]])
+                                     f"{val['reward']:.2f}", f"{val['landed']:.3f}",
+                                     f"{val['centred']:.3f}", f"{val['abs_x']:.3f}",
+                                     f"{val['crashed']:.3f}", f"{val['steps']:.1f}", *best_size]])
         self.champions[gen] = copy.deepcopy(best_genome)
         runs.save_pickle(self.champions, runs.path(self.run_dir, 'genomes', 'champions.pkl'))
         if val['fitness'] > self.winner_score:
@@ -140,7 +144,7 @@ class EvolutionRecorder(BaseReporter):
                 json.dump({'generation': gen, 'genome': best_genome.key, 'training_fitness':
                            best_genome.fitness, 'validation': val, 'hidden': best_size[0],
                            'connections': best_size[1]}, fh, indent=2)
-        if self.solved_at is None and val['fitness'] >= config.fitness_threshold:
+        if self.solved_at is None and val['reward'] >= config.fitness_threshold:
             self.solved_at = gen
 
         # Where each gene first appeared (neat-python names a connection gene by its (in, out)
@@ -171,7 +175,8 @@ class EvolutionRecorder(BaseReporter):
 
         solved = f'  solved@{self.solved_at}' if self.solved_at is not None else ''
         print(f'gen {gen:4d} | best {fits.max():7.1f}  mean {fits.mean():7.1f} | '
-              f'champion on 100 new: {val["fitness"]:7.1f} ({100 * val["landed"]:3.0f}% land) | '
+              f'champion on 100 new: {val["reward"]:7.1f} ({100 * val["landed"]:3.0f}% land, '
+              f'{100 * val["centred"]:3.0f}% centred) | '
               f'species {len(species_set.species):2d} | net {best_size[0]}h/{best_size[1]}c | '
               f'{secs:4.1f}s{solved}', flush=True)
 

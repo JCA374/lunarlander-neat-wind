@@ -1,6 +1,7 @@
 """Fitness: how well does a genome fly?
 
-fitness = the average LunarLander reward over a few episodes. Every genome of a generation flies the
+fitness = the average LunarLander reward over a few episodes, plus a bonus for landing in the middle
+between the flags (see env.centre_bonus). Every genome of a generation flies the
 *same* starting positions (seeds), so they are compared fairly; the seeds change every generation, so
 nobody can specialise on one start. Validation uses 100 fixed seeds that training never sees.
 """
@@ -10,7 +11,7 @@ import multiprocessing as mp
 import numpy as np
 from neat.reporting import BaseReporter
 
-from .env import make_env, make_net, run_episode
+from .env import CENTRED, PAD_HALF_WIDTH, make_env, make_net, run_episode
 
 TRAIN_SEED_BASE = 1234          # training seeds for generation g come from rng(TRAIN_SEED_BASE + g)
 TRAIN_SEED_MAX = 10**9          # training seeds are drawn below this ...
@@ -31,11 +32,20 @@ def fly(genome, config, seeds):
     return summarize(eps)
 
 
+SUMMARY_KEYS = ('fitness', 'reward', 'landed', 'centred', 'abs_x', 'crashed', 'steps')
+
+
 def summarize(eps):
-    rewards = np.array([e['reward'] for e in eps])
-    return {'fitness': float(rewards.mean()),
-            'std': float(rewards.std()),
-            'landed': float(np.mean([e['outcome'] == 'landed' for e in eps])),
+    fitness = np.array([e['fitness'] for e in eps])
+    landed = [e for e in eps if e['landed']]
+    return {'fitness': float(fitness.mean()),
+            'std': float(fitness.std()),
+            'reward': float(np.mean([e['reward'] for e in eps])),
+            'landed': len(landed) / len(eps),
+            'centred': float(np.mean([e['landed'] and abs(e['x_final']) < CENTRED for e in eps])),
+            # how far from the middle the landings were (1.0 = at a flag; nan if nothing landed)
+            'abs_x': (float(np.mean([abs(e['x_final']) for e in landed]) / PAD_HALF_WIDTH)
+                      if landed else float('nan')),
             'crashed': float(np.mean([e['outcome'] == 'crashed' for e in eps])),
             'steps': float(np.mean([e['steps'] for e in eps]))}
 
@@ -85,7 +95,11 @@ class Evaluator(BaseReporter):
         parts = self.pool.map(_fly_job, [(genome, c) for c in chunks])
         weights = np.array([len(c) for c in chunks], dtype=float)
         out = {k: float(np.average([p[k] for p in parts], weights=weights))
-               for k in ('fitness', 'landed', 'crashed', 'steps')}
+               for k in SUMMARY_KEYS if k != 'abs_x'}
+        # abs_x averages over landings only
+        lw = np.array([p['landed'] for p in parts]) * weights
+        out['abs_x'] = (float(np.average([p['abs_x'] for p in parts if p['landed']],
+                                         weights=lw[lw > 0])) if lw.sum() else float('nan'))
         return out
 
     def __getstate__(self):
