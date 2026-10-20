@@ -1,5 +1,5 @@
 """
-Scenes for the explainer and lesson videos.
+Scenes for the explainer video.
 
 Every scene factory returns a `timeline.Scene`: a render function `render(t, beats)` plus the
 default length of each beat. A beat is one narrated section (see timeline.py), so the visuals are
@@ -12,14 +12,13 @@ Parts: the problem (task, reward) · the network and its genome · how NEAT chan
 import numpy as np
 from PIL import Image, ImageDraw
 
-from common import REPO_ROOT as C_ROOT
 from common import (ABLATION_EPISODES, ACTION_COLORS, AMBER, BG, BLUE, FG, FPS, GREEN, H, MUTED, PANEL, RED, VIEW_H,
                     VIEW_W, VIOLET, W, Scene, blank, ease, fade, fly, frame_at, heading, mix,
                     outcome, paste_frame, step_at, terrain_frame, text, wrap)
 from neat_lander.draw import draw_network, layout
 from neat_lander.labels import ACTION_NAMES, INPUT_NAMES
 
-REPO_URL = 'github.com/JCA374/lunarlander-neat'
+REPO_URL = 'github.com/JCA374/lunarlander-neat-wind'
 SPECIES_COLORS = [(84, 212, 140), (96, 168, 255), (255, 184, 64), (190, 120, 255), (240, 96, 96),
                   (64, 210, 220), (255, 130, 190), (170, 200, 90), (255, 150, 90), (150, 150, 255)]
 
@@ -890,57 +889,3 @@ def scene_outro(ctx, name='outro'):
              mono=True, anchor='mm')
         return img
     return Scene(name, render, [6.0, 6.0])
-
-
-def scene_failures(ctx, name='failures'):
-    """Beats: crashes end right of the pad; timeouts with only the left leg down; a hard start push.
-    Uses the failure analysis (experiments/record_flights.py)."""
-    import gzip
-    import json
-    import os
-
-    from neat_lander.env import make_env
-    path = os.path.join(C_ROOT, 'results', 'failure_analysis', os.path.basename(os.path.normpath(ctx.run.dir)),
-                        'flights.jsonl.gz')
-    with gzip.open(path, 'rt') as fh:
-        flights = [json.loads(line) for line in fh][1:]
-    n = len(flights)
-    landed = sum(f['outcome'] == 'landed' for f in flights)
-    crashes = [f for f in flights if f['outcome'] == 'crashed']
-    right = [f for f in crashes if f['final'][0] > 0.2]
-    timeouts = [f for f in flights if f['outcome'] == 'timeout']
-    left_only = [f for f in timeouts if f['final'][6] > 0.5 and f['final'][7] < 0.5]
-
-    def final_frame(f):
-        env = make_env('rgb_array')
-        env.reset(seed=f['seed'])
-        for a in f['actions']:
-            env.step(a)
-        fr = env.render()
-        env.close()
-        return fr
-    rows = [[final_frame(f) for f in right[:3]], [final_frame(f) for f in left_only[:3]]]
-    tw, th, gx = 300, 200, 24
-    x0 = 80
-
-    def render(t, b):
-        img = blank()
-        d = ImageDraw.Draw(img)
-        heading(d, 'Where the winner still fails', t, f'{n} new flights: {100 * landed / n:.1f}% land')
-        for r, (frames, beat, lab, col) in enumerate([
-                (rows[0], 0, f'{len(right)} of {len(crashes)} crashes end right of the pad', RED),
-                (rows[1], 1, f'{len(left_only)} of {len(timeouts)} timeouts: only the left leg is down', MUTED)]):
-            a = fade(t, b.at(beat) + 0.3)
-            if a <= 0:
-                continue
-            y = 150 + r * (th + 70)
-            text(d, (x0, y - 34), lab, 22, col, a, bold=True)
-            for i, fr in enumerate(frames):
-                tile = Image.fromarray(fr).resize((tw, th), Image.BILINEAR)
-                if a < 1:
-                    tile = Image.blend(Image.new('RGB', (tw, th), BG), tile, a)
-                img.paste(tile, (x0 + i * (tw + gx), y))
-        a = fade(t, b.at(2))
-        text(d, (W - 60, 650), 'every failure started with a hard sideways push', 21, AMBER, a, anchor='ra')
-        return img
-    return Scene(name, render, [6.0, 7.0, 5.0])

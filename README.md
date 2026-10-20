@@ -6,7 +6,7 @@ weights *and the shape* of a neural network. Every network starts as the simples
 one, with the 8 inputs wired straight to the 4 actions. Evolution adds hidden nodes and
 connections only when they help.
 
-**Explainer video, lessons and pictures:** https://jca374.github.io/lunarlander-neat/
+**Explainer video, lessons and pictures:** https://jca374.github.io/lunarlander-neat-wind/
 
 ## Quick start
 

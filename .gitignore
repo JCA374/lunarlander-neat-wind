@@ -8,7 +8,7 @@ __pycache__/
 
 # Training outputs: runs are local; the published run is whitelisted below
 runs/*
-!runs/run_20261020/
+# !runs/<published run>/   (whitelisted once the wind run is chosen)
 runs/*/checkpoints/
 results/**/flights.jsonl.gz
 *.log
