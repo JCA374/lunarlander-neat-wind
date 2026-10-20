@@ -1,0 +1,472 @@
+WEBVTT
+
+00:00:00.350 --> 00:00:03.810
+What if evolution could design a neural network for you?
+
+00:00:03.810 --> 00:00:06.513
+Not just its weights, but its whole shape.
+
+00:00:06.513 --> 00:00:09.271
+This is NEAT, learning to land on the Moon.
+
+00:00:09.271 --> 00:00:11.517
+And this time, there's wind.
+
+00:00:12.117 --> 00:00:13.893
+This is Lunar Lander.
+
+00:00:13.893 --> 00:00:17.753
+The goal is to touch down softly between the two flags.
+
+00:00:17.753 --> 00:00:22.892
+Gravity pulls the lander down, and every burst of an engine costs fuel.
+
+00:00:23.492 --> 00:00:26.898
+At every step, the lander senses eight numbers.
+
+00:00:26.898 --> 00:00:34.319
+Where it is, how fast it is moving, how it is tilted and spinning, and whether each leg touches the ground.
+
+00:00:34.919 --> 00:00:38.599
+And at every step, it chooses one of four actions.
+
+00:00:38.599 --> 00:00:44.545
+Do nothing, fire the left engine, fire the main engine, or fire the right engine.
+
+00:00:45.145 --> 00:00:46.822
+And now there is wind.
+
+00:00:46.822 --> 00:00:52.469
+Gusts push the lander sideways, and turbulence twists it, and both keep changing as it flies.
+
+00:00:52.469 --> 00:00:55.097
+The arrow in the corner shows the wind.
+
+00:00:55.097 --> 00:00:57.557
+But the lander can't see that arrow.
+
+00:00:57.557 --> 00:01:00.017
+Wind is not one of its eight inputs.
+
+00:01:00.017 --> 00:01:03.783
+It can only notice that it is drifting, and push back.
+
+00:01:04.383 --> 00:01:07.038
+The game hands out points as it goes.
+
+00:01:07.038 --> 00:01:11.403
+Moving toward the pad, slowing down and staying level earn points.
+
+00:01:11.403 --> 00:01:15.184
+Drifting away, speeding up and tilting cost points.
+
+00:01:15.784 --> 00:01:17.993
+There are also one-off events.
+
+00:01:17.993 --> 00:01:20.957
+Each leg that touches the ground earns ten.
+
+00:01:20.957 --> 00:01:23.224
+Coming to rest earns a hundred.
+
+00:01:23.224 --> 00:01:25.384
+A crash costs a hundred.
+
+00:01:25.984 --> 00:01:27.757
+And fuel isn't free.
+
+00:01:27.757 --> 00:01:31.665
+Every frame the main engine fires costs a little.
+
+00:01:32.265 --> 00:01:34.430
+We add one thing of our own.
+
+00:01:34.430 --> 00:01:40.987
+A landing earns a bonus of up to fifty, the full amount exactly in the middle, and nothing at a flag.
+
+00:01:40.987 --> 00:01:46.279
+So evolution is pushed to land in the centre, not just anywhere on the pad.
+
+00:01:46.879 --> 00:01:52.430
+An average game score of two hundred, without our bonus, counts as solved.
+
+00:01:53.030 --> 00:01:55.586
+The pilot is a small neural network.
+
+00:01:55.586 --> 00:01:58.200
+The eight inputs come in on the left.
+
+00:01:58.200 --> 00:02:04.484
+They flow along weighted connections, and come out on the right as four scores, one per action.
+
+00:02:05.084 --> 00:02:07.918
+The action with the highest score fires.
+
+00:02:07.918 --> 00:02:11.288
+Watch the scores change as the lander flies.
+
+00:02:11.888 --> 00:02:16.355
+This network has just one hidden node, and twenty-six connections.
+
+00:02:16.355 --> 00:02:17.985
+Nobody designed it.
+
+00:02:17.985 --> 00:02:22.872
+Evolution found every weight, and decided which connections to keep.
+
+00:02:23.472 --> 00:02:26.575
+Evolution doesn't work on the network directly.
+
+00:02:26.575 --> 00:02:29.171
+It works on a genome: a list of genes.
+
+00:02:29.171 --> 00:02:31.597
+Node genes say which neurons exist.
+
+00:02:31.597 --> 00:02:36.337
+Connection genes say which neurons are wired together, and with what weight.
+
+00:02:36.337 --> 00:02:39.628
+Read the list, and you can build the network.
+
+00:02:40.228 --> 00:02:45.473
+Each connection gene also carries a historical marker, called its innovation number.
+
+00:02:45.473 --> 00:02:50.605
+It is given out the first time that connection appears anywhere in the population.
+
+00:02:50.605 --> 00:02:54.995
+So when two genomes share a number, those genes have the same origin.
+
+00:02:54.995 --> 00:03:00.825
+The library we use names each gene by the two nodes it connects, which does the same job.
+
+00:03:01.425 --> 00:03:05.858
+Each new genome starts as a copy of a parent, and then it mutates.
+
+00:03:05.858 --> 00:03:08.674
+There are three kinds of mutation.
+
+00:03:09.274 --> 00:03:12.438
+The most common one simply nudges a weight.
+
+00:03:12.438 --> 00:03:16.026
+Here, a positive connection becomes negative.
+
+00:03:16.626 --> 00:03:22.088
+The second kind adds a connection, joining two nodes that were not connected before.
+
+00:03:22.088 --> 00:03:24.763
+It gets a new innovation number.
+
+00:03:25.363 --> 00:03:27.290
+The third kind adds a node.
+
+00:03:27.290 --> 00:03:29.932
+It splits an existing connection in two.
+
+00:03:29.932 --> 00:03:33.841
+The old gene is switched off, and two new genes take its place.
+
+00:03:33.841 --> 00:03:42.099
+The connection into the new node gets a weight of one, and the one out keeps the old weight, so the network behaves almost the same as before.
+
+00:03:42.099 --> 00:03:45.647
+The structure has grown, without breaking anything.
+
+00:03:46.247 --> 00:03:48.571
+Two parents can also be combined.
+
+00:03:48.571 --> 00:03:51.576
+This is where the innovation numbers pay off.
+
+00:03:51.576 --> 00:03:57.205
+Line the genes up by their numbers, and you can see which genes the two parents share.
+
+00:03:57.805 --> 00:04:00.914
+Genes that both parents have are called matching.
+
+00:04:00.914 --> 00:04:05.060
+A gene missing in the middle of the other parent is called disjoint.
+
+00:04:05.060 --> 00:04:09.233
+And a gene beyond the end of the other parent is called excess.
+
+00:04:09.833 --> 00:04:13.984
+The child takes each matching gene from either parent at random.
+
+00:04:13.984 --> 00:04:17.789
+The disjoint and excess genes come from the fitter parent.
+
+00:04:17.789 --> 00:04:23.508
+No matter how different the two networks look, the child is always a sensible network.
+
+00:04:24.108 --> 00:04:25.578
+Here is a problem.
+
+00:04:25.578 --> 00:04:32.363
+A mutation that adds a node usually makes the network worse at first, because its new weights are not tuned yet.
+
+00:04:32.363 --> 00:04:37.809
+Ranked against everyone, it would be thrown out before it could ever become useful.
+
+00:04:38.409 --> 00:04:41.618
+So NEAT measures how different two genomes are.
+
+00:04:41.618 --> 00:04:49.437
+It counts the genes that don't match, adds the weight differences of the genes that do, and divides by the size of the genome.
+
+00:04:49.437 --> 00:04:54.696
+If that distance is small enough, the two genomes belong to the same species.
+
+00:04:55.296 --> 00:04:58.995
+Genomes then compete mostly inside their own species.
+
+00:04:58.995 --> 00:05:05.664
+Each species shares its offspring among its members, so a big species can't crowd out a small new one.
+
+00:05:05.664 --> 00:05:10.512
+And a species that stops improving for twenty generations dies out.
+
+00:05:11.112 --> 00:05:14.052
+So here is one generation of NEAT.
+
+00:05:14.052 --> 00:05:20.372
+First, evaluate: every one of the 150 genomes flies, and gets a fitness score.
+
+00:05:20.972 --> 00:05:25.243
+Then, speciate: sort the genomes into species.
+
+00:05:25.843 --> 00:05:33.927
+Then, select: inside each species, the best ones become parents, and the two very best are kept unchanged.
+
+00:05:34.527 --> 00:05:39.260
+And reproduce: crossover and mutation fill the population back up.
+
+00:05:39.260 --> 00:05:41.671
+Then it all starts again.
+
+00:05:42.271 --> 00:05:48.318
+Fitness is the average over five flights of the game score plus the centre bonus.
+
+00:05:48.918 --> 00:05:56.531
+Every genome in a generation flies the same starting positions, in the same wind, so the comparison is fair.
+
+00:05:56.531 --> 00:06:02.540
+The starts and the winds change each generation, so no genome can memorise one.
+
+00:06:03.140 --> 00:06:07.208
+But five flights are noisy, and in wind they are very noisy.
+
+00:06:07.208 --> 00:06:09.780
+The top genome is often just lucky.
+
+00:06:09.780 --> 00:06:15.822
+So each generation, its champion also flies a hundred flights that no genome ever trained on.
+
+00:06:15.822 --> 00:06:21.386
+We only call the problem solved when that unseen game score reaches two hundred.
+
+00:06:21.986 --> 00:06:25.084
+Now the real run, five hundred generations.
+
+00:06:25.084 --> 00:06:29.033
+Every dot is one genome, and its color shows its species.
+
+00:06:29.033 --> 00:06:35.837
+In generation zero, every network is just the inputs wired straight to the outputs, with random weights.
+
+00:06:35.837 --> 00:06:38.142
+Almost all of them crash.
+
+00:06:38.742 --> 00:06:41.778
+The cloud of dots rises quickly at first.
+
+00:06:41.778 --> 00:06:47.715
+By generation forty-two, the champion scores a hundred and fifty on unseen flights.
+
+00:06:48.315 --> 00:06:49.797
+But then it stalls.
+
+00:06:49.797 --> 00:06:53.586
+The green line is the champion on the hundred unseen flights.
+
+00:06:53.586 --> 00:06:55.618
+It never reaches two hundred.
+
+00:06:55.618 --> 00:07:02.426
+The best champion of the whole run came early, from generation eighty-one, with a score of a hundred and eighty-two.
+
+00:07:02.426 --> 00:07:05.775
+The remaining four hundred generations never beat it.
+
+00:07:05.775 --> 00:07:08.546
+In wind, this problem was not solved.
+
+00:07:09.146 --> 00:07:11.534
+This is the classic NEAT picture.
+
+00:07:11.534 --> 00:07:15.960
+Each band is one species, and its height is how many genomes it has.
+
+00:07:15.960 --> 00:07:18.589
+At the start, there is just one.
+
+00:07:19.189 --> 00:07:24.963
+New species split off, grow when they do well, and shrink and die when they stop improving.
+
+00:07:24.963 --> 00:07:28.762
+Over the whole run, forty-six species came and went.
+
+00:07:29.362 --> 00:07:32.424
+Here is one generation flying together.
+
+00:07:32.424 --> 00:07:37.961
+All 150 genomes start from the same spot, and we draw each flight as a trail.
+
+00:07:37.961 --> 00:07:40.346
+This is generation zero.
+
+00:07:40.946 --> 00:07:45.112
+At first, nearly every flight ends in a crash.
+
+00:07:47.546 --> 00:07:51.952
+A few dozen generations in, many trails curve down toward the pad.
+
+00:07:51.952 --> 00:07:57.433
+The wind bends them, and they spread out much more than they would in calm air.
+
+00:07:58.033 --> 00:08:05.304
+And late in the run, a share of the population lands from this start, but the trails never bundle into one tidy path.
+
+00:08:05.304 --> 00:08:08.561
+Every gust asks for a slightly different answer.
+
+00:08:08.561 --> 00:08:13.223
+Mutation keeps breaking things, and that is the price of searching.
+
+00:08:13.823 --> 00:08:16.991
+This is how the champion's network changed.
+
+00:08:16.991 --> 00:08:23.814
+It started fully connected, with all eight inputs wired to all four outputs, and no hidden nodes.
+
+00:08:24.414 --> 00:08:27.111
+Did the wind make hidden nodes necessary?
+
+00:08:27.111 --> 00:08:28.983
+The answer is: not really.
+
+00:08:28.983 --> 00:08:33.002
+The winner, from generation eighty-one, has a single hidden node.
+
+00:08:33.002 --> 00:08:38.672
+After that, the networks kept growing, to more than thirty hidden nodes and eighty connections.
+
+00:08:38.672 --> 00:08:42.635
+But those big networks flew worse on unseen flights, not better.
+
+00:08:42.635 --> 00:08:45.743
+More structure did not buy more skill here.
+
+00:08:46.343 --> 00:08:52.259
+Here are the champions from different generations, all flying the same windy start.
+
+00:08:52.859 --> 00:08:55.593
+The early ones crash or drift away.
+
+00:08:55.593 --> 00:09:00.917
+Later champions fight the drift, slow down, and land between the flags.
+
+00:09:06.692 --> 00:09:08.771
+So what did evolution build?
+
+00:09:08.771 --> 00:09:13.575
+Let's switch connections off one at a time, and see which ones matter.
+
+00:09:14.175 --> 00:09:20.535
+The most important connection runs from the falling speed to the main engine, with a big negative weight.
+
+00:09:20.535 --> 00:09:25.319
+When the lander falls fast, the main engine's score shoots up, and it brakes.
+
+00:09:25.319 --> 00:09:29.783
+Switch this one connection off, and the lander never lands at all.
+
+00:09:30.383 --> 00:09:33.337
+Next, the tilt angle feeds the left engine.
+
+00:09:33.337 --> 00:09:36.870
+This is the connection that keeps the lander upright.
+
+00:09:36.870 --> 00:09:40.819
+Without it, only fifteen percent of these flights land.
+
+00:09:41.419 --> 00:09:45.103
+Third, the left leg sensor holds back the right engine.
+
+00:09:45.103 --> 00:09:49.138
+Once a leg is down, the lander stops pushing itself sideways.
+
+00:09:49.138 --> 00:09:52.011
+Without it, the landing rate halves.
+
+00:09:52.611 --> 00:09:59.207
+Here are the connections that matter most, ranked by how much the landing rate drops without them.
+
+00:09:59.807 --> 00:10:04.259
+Nineteen of the twenty-six connections can go with almost no loss.
+
+00:10:04.259 --> 00:10:07.447
+A handful of them carry the whole skill.
+
+00:10:08.047 --> 00:10:09.560
+And the hidden node?
+
+00:10:09.560 --> 00:10:14.422
+Cut it out completely, and on a hundred test flights the lander does just as well.
+
+00:10:14.422 --> 00:10:18.204
+Seventy-five percent landings without it, seventy-two with it.
+
+00:10:18.204 --> 00:10:21.608
+Evolution added it, but the skill doesn't depend on it.
+
+00:10:21.608 --> 00:10:25.797
+The winner is, in effect, a network with no hidden layer at all.
+
+00:10:26.397 --> 00:10:28.527
+So, is the wind hard enough?
+
+00:10:28.527 --> 00:10:36.519
+Here is the champion from the calm-air version of this project, flying in wind, next to the new winner, on the same start.
+
+00:10:37.119 --> 00:10:43.473
+In calm air, the old champion landed ninety-five percent of the time, with a score of two hundred and fifty-four.
+
+00:10:43.473 --> 00:10:47.412
+In wind, it drops to sixty-four percent, and a hundred and sixteen.
+
+00:10:47.412 --> 00:10:55.131
+The new winner, trained in wind, does better: seventy-two percent, a score of a hundred and sixty-six, and far more landings in the middle.
+
+00:10:55.131 --> 00:10:56.864
+The wind is clearly hard.
+
+00:10:56.864 --> 00:11:00.224
+It is too hard to solve within five hundred generations.
+
+00:11:00.224 --> 00:11:03.097
+But it still didn't force a hidden layer.
+
+00:11:03.697 --> 00:11:13.506
+On a hundred new windy flights, the winner lands seventy-two percent of the time, thirty-six percent in the middle, with an average score of a hundred and sixty-six.
+
+00:11:13.506 --> 00:11:19.305
+And it does that with one hidden node it doesn't really need, and twenty-six connections.
+
+00:11:19.905 --> 00:11:23.964
+The code, the training run, and these videos are all on GitHub.
+
+00:11:23.964 --> 00:11:27.807
+Clone it, train your own, and watch your network grow.
