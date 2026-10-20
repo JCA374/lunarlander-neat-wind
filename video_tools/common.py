@@ -273,6 +273,16 @@ class Context:
                     'ranked': sorted(rates.items(), key=lambda kv: kv[1])}
         return self.cached('ablation', run)
 
+    def without_hidden(self):
+        """The winner with every hidden node cut out, on the same 100 test episodes as `stats`."""
+        def run():
+            g = copy.deepcopy(self.winner)
+            for key, c in g.connections.items():
+                if key[0] in self.hidden_alias or key[1] in self.hidden_alias:
+                    c.enabled = False
+            return test(g, self.config)
+        return self.cached('without_hidden', run)
+
     def baseline(self):
         """The no-wind champion (experiments/baseline/) without and with wind, and a test seed where
         it misses the middle in wind while the new winner lands there."""

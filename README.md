@@ -18,13 +18,24 @@ enough for evolution to *need* hidden structure:
 
 **Explainer video and pictures:** https://jca374.github.io/lunarlander-neat-wind/
 
+## Result: hard enough, but no hidden layer needed
+
+The published run (`runs/run_wind_20261020`, 500 generations) **did not solve** the windy task. The best champion,
+from generation 81, scores 182 on the 100 validation episodes (77% landings, 38% in the middle). On 100 test
+episodes it lands 72%, 36% in the middle, with an average game score of 166. The calm-air champion from
+lunarlander-neat gets 95% / 87% / 254 without wind, but only 64% / 21% / 116 in the same wind.
+
+The winner has **one hidden node and 26 connections**, but it doesn't need the node: with it cut out, the network
+lands 75% with a score of 161 on the same test episodes. Later generations grew to 30+ hidden nodes and flew worse
+on unseen episodes. So the wind makes the task much harder, but it doesn't force NEAT to use a hidden layer.
+
 ## Quick start
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install swig && pip install -r requirements.txt
 
-python train.py                      # ~1 h on 8 cores; writes runs/run_YYYYMMDD_HHMMSS/
+python train.py --generations 500    # ~1.5 h on 8 cores; writes runs/run_YYYYMMDD_HHMMSS/
 python demo.py runs/<run>            # watch the winner fly
 python visualize_all.py runs/<run>   # plots, network pictures, evaluation
 ```

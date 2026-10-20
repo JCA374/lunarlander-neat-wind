@@ -1,4 +1,4 @@
-title: NEAT Lunar Lander explainer
+title: 'NEAT Lunar Lander in wind: explainer'
 kind: voiceover
 author: ''
 narrator: Kokoro TTS (af_heart)
@@ -11,255 +11,280 @@ chapters:
   ch02: task
   ch03: task.2
   ch04: task.3
-  ch05: reward
-  ch06: reward.2
-  ch07: reward.3
-  ch08: reward.4
-  ch09: network
-  ch10: network.2
-  ch11: network.3
-  ch12: genome
-  ch13: genome.2
-  ch14: mutation
-  ch15: mutation.2
-  ch16: mutation.3
-  ch17: mutation.4
-  ch18: crossover
-  ch19: crossover.2
-  ch20: crossover.3
-  ch21: speciation
-  ch22: speciation.2
-  ch23: speciation.3
-  ch24: loop
-  ch25: loop.2
-  ch26: loop.3
-  ch27: loop.4
-  ch28: fitness
-  ch29: fitness.2
-  ch30: fitness.3
-  ch31: gen_fitness
-  ch32: gen_fitness.2
-  ch33: gen_fitness.3
-  ch34: species
-  ch35: species.2
-  ch36: gen_ghosts
-  ch37: gen_ghosts.2
-  ch38: gen_ghosts.3
-  ch39: gen_ghosts.4
-  ch40: growth
-  ch41: growth.2
-  ch42: evolution
-  ch43: evolution.2
-  ch44: read
-  ch45: read.2
-  ch46: read.3
-  ch47: read.4
-  ch48: ablation
-  ch49: ablation.2
-  ch50: outro
-  ch51: outro.2
+  ch05: task.4
+  ch06: reward
+  ch07: reward.2
+  ch08: reward.3
+  ch09: reward.4
+  ch10: reward.5
+  ch11: network
+  ch12: network.2
+  ch13: network.3
+  ch14: genome
+  ch15: genome.2
+  ch16: mutation
+  ch17: mutation.2
+  ch18: mutation.3
+  ch19: mutation.4
+  ch20: crossover
+  ch21: crossover.2
+  ch22: crossover.3
+  ch23: speciation
+  ch24: speciation.2
+  ch25: speciation.3
+  ch26: loop
+  ch27: loop.2
+  ch28: loop.3
+  ch29: loop.4
+  ch30: fitness
+  ch31: fitness.2
+  ch32: fitness.3
+  ch33: gen_fitness
+  ch34: gen_fitness.2
+  ch35: gen_fitness.3
+  ch36: species
+  ch37: species.2
+  ch38: gen_ghosts
+  ch39: gen_ghosts.2
+  ch40: gen_ghosts.3
+  ch41: gen_ghosts.4
+  ch42: growth
+  ch43: growth.2
+  ch44: evolution
+  ch45: evolution.2
+  ch46: read
+  ch47: read.2
+  ch48: read.3
+  ch49: read.4
+  ch50: ablation
+  ch51: ablation.2
+  ch52: ablation.3
+  ch53: harder
+  ch54: harder.2
+  ch55: outro
+  ch56: outro.2
 sources:
   ch01:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
     section: title
   ch02:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
     section: task
   ch03:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
     section: task.2
   ch04:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
     section: task.3
   ch05:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: reward
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: task.4
   ch06:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: reward.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: reward
   ch07:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: reward.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: reward.2
   ch08:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: reward.4
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: reward.3
   ch09:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: network
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: reward.4
   ch10:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: network.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: reward.5
   ch11:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: network.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: network
   ch12:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: genome
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: network.2
   ch13:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: genome.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: network.3
   ch14:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: mutation
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: genome
   ch15:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: mutation.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: genome.2
   ch16:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: mutation.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: mutation
   ch17:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: mutation.4
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: mutation.2
   ch18:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: crossover
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: mutation.3
   ch19:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: crossover.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: mutation.4
   ch20:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: crossover.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: crossover
   ch21:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: speciation
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: crossover.2
   ch22:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: speciation.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: crossover.3
   ch23:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: speciation.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: speciation
   ch24:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: loop
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: speciation.2
   ch25:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: loop.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: speciation.3
   ch26:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: loop.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: loop
   ch27:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: loop.4
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: loop.2
   ch28:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: fitness
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: loop.3
   ch29:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: fitness.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: loop.4
   ch30:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: fitness.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: fitness
   ch31:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_fitness
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: fitness.2
   ch32:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_fitness.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: fitness.3
   ch33:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_fitness.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_fitness
   ch34:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: species
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_fitness.2
   ch35:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: species.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_fitness.3
   ch36:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_ghosts
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: species
   ch37:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_ghosts.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: species.2
   ch38:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_ghosts.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_ghosts
   ch39:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: gen_ghosts.4
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_ghosts.2
   ch40:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: growth
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_ghosts.3
   ch41:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: growth.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: gen_ghosts.4
   ch42:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: evolution
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: growth
   ch43:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: evolution.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: growth.2
   ch44:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: read
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: evolution
   ch45:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: read.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: evolution.2
   ch46:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: read.3
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: read
   ch47:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: read.4
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: read.2
   ch48:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: ablation
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: read.3
   ch49:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: ablation.2
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: read.4
   ch50:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
-    section: outro
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: ablation
   ch51:
-    path: /home/jonas/code/games/lunarlander/lunarlander-neat/video_tools/narration/explainer.md
-    sha1: e3a09295a1b43aeef006ade888e61001bbee1779
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: ablation.2
+  ch52:
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: ablation.3
+  ch53:
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: harder
+  ch54:
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: harder.2
+  ch55:
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
+    section: outro
+  ch56:
+    path: /home/jonas/code/games/lunarlander/lunarlander-neat-wind/video_tools/narration/explainer.md
+    sha1: c4f4bae3005cfde7f5e15223339ac7c5d965837d
     section: outro.2

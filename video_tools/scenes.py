@@ -855,10 +855,11 @@ def scene_read(ctx, name='read'):
 
 
 def scene_ablation(ctx, name='ablation'):
-    """Beats: switch off one connection at a time; most are spare, a few are vital."""
+    """Beats: switch off one connection at a time; most are spare, a few are vital; the hidden nodes off."""
     abl = ctx.ablation()
     ranked = abl['ranked']
     show = ranked[:12]
+    nh = len(ctx.hidden_alias)
     x0, y0, bw, rh = 360, 150, 600, 36
 
     def render(t, b):
@@ -880,10 +881,17 @@ def scene_ablation(ctx, name='ablation'):
         text(d, (fx, y0 - 14), f'all connections: {100 * full:.0f}%', 15, FG, anchor='mb')
         a = fade(t, b.at(1))
         spare = sum(1 for _, r in ranked if r >= full - 0.05)
-        text(d, (80, 620), f'{spare} of {len(ranked)} connections can go with almost no loss; '
+        text(d, (80, 616), f'{spare} of {len(ranked)} connections can go with almost no loss; '
              f'a handful carry the whole skill.', 21, AMBER, a)
+        a = fade(t, b.at(2))
+        if a > 0 and nh:
+            off, on = ctx.without_hidden(), ctx.stats
+            what = 'the hidden node' if nh == 1 else f'all {nh} hidden nodes'
+            text(d, (80, 652), f'Without {what}: {off["landing_rate"]:.0f}% landings, score '
+                 f'{off["avg_reward"]:.0f}  (with: {on["landing_rate"]:.0f}%, {on["avg_reward"]:.0f}; '
+                 '100 test flights)', 21, VIOLET, a, bold=True)
         return img
-    return Scene(name, render, [7.0, 7.0])
+    return Scene(name, render, [7.0, 7.0, 7.0])
 
 
 def scene_harder(ctx, name='harder'):

@@ -1,0 +1,10 @@
+{
+  "config": "neat-config.ini",
+  "generations": 500,
+  "episodes": 5,
+  "workers": null,
+  "pop": null,
+  "seed": null,
+  "name": "run_wind_20261020",
+  "resume": null
+}

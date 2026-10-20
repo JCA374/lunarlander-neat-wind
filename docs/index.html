@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NEAT Lunar Lander</title>
-<meta name="description" content="NEAT evolves the weights and the shape of a neural network that lands Gymnasium's LunarLander. Explainer video and code.">
-<meta property="og:title" content="NEAT Lunar Lander">
-<meta property="og:description" content="Evolving a neural network, weights and shape, to land on the Moon.">
+<title>NEAT Lunar Lander in Wind</title>
+<meta name="description" content="NEAT evolves the weights and the shape of a neural network that lands Gymnasium's LunarLander in wind. Explainer video and code.">
+<meta property="og:title" content="NEAT Lunar Lander in Wind">
+<meta property="og:description" content="Evolving a neural network, weights and shape, to land on the Moon in wind.">
 <meta property="og:image" content="img/poster.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b1020'/%3E%3Cpath d='M10 20h12l-2-7h-8z' fill='%23ffb840'/%3E%3Cpath d='M11 20l-3 5M21 20l3 5' stroke='%23ffb840' stroke-width='2'/%3E%3C/svg%3E">
 <style>
@@ -199,7 +199,7 @@
 
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="#overview">NEAT <span>Lunar Lander</span></a>
+    <a class="brand" href="#overview">NEAT <span>Lunar Lander · wind</span></a>
     <nav>
       <a class="hide-sm" href="#genome">Genome</a>
       <a class="hide-sm" href="#run-data">The run</a>
@@ -218,10 +218,23 @@
       Gymnasium's LunarLander with wind switched on. It uses no gradients and no backpropagation, just a population that improves
       every generation.</p>
 
-    <div class="callout"><strong>Work in progress.</strong> This is the wind version of
-      <a href="https://jca374.github.io/lunarlander-neat/">NEAT Lunar Lander</a>: the lander now flies in gusts it
-      cannot sense, and earns a bonus for landing in the middle between the flags. The training run and the new
-      explainer video are coming. Until then, the pictures below come from the original no-wind run.</div>
+    <div class="video-card">
+      <video controls preload="metadata" poster="img/poster.jpg" playsinline>
+        <source src="explainer.mp4" type="video/mp4">
+        <track kind="captions" src="explainer.vtt" srclang="en" label="English">
+        Your browser can't play this video. <a href="explainer.mp4">Download it instead</a>.
+      </video>
+    </div>
+    <p class="video-note">Narrated explainer (captions in the player menu). Every frame was rendered from this
+      repository's code and its training run. This is the wind version of
+      <a href="https://jca374.github.io/lunarlander-neat/">NEAT Lunar Lander</a>, which landed in calm air with no hidden nodes.</p>
+
+    <div class="stats">
+      <div class="stat"><b>72%</b><span>landing rate on 100 unseen windy episodes</span></div>
+      <div class="stat"><b>36%</b><span>landed in the middle between the flags</span></div>
+      <div class="stat"><b>166</b><span>average game score (≥ 200 counts as solved: <em>not reached</em>)</span></div>
+      <div class="stat"><b>1 + 26</b><span>hidden nodes + connections in the winner</span></div>
+    </div>
   </div>
 </div>
 
@@ -229,7 +242,10 @@
   <div class="wrap">
     <h2><span class="num">1</span>The problem</h2>
     <p class="intro">The lander starts high above the surface with a random push. It has to touch down
-      softly between the two flags. Gravity pulls it down, and every engine burn costs fuel.</p>
+      softly between the two flags. Gravity pulls it down, and every engine burn costs fuel. Here, gusts of
+      <strong>wind</strong> (up to 15) push it sideways and <strong>turbulence</strong> (up to 1.5) twists it.
+      The wind is not one of the inputs: the network can only notice it as drift. On top of the game's score, a
+      landing earns a <strong>bonus of up to +50</strong>, the full bonus exactly in the middle and none at a flag.</p>
     <div class="table-scroll">
       <table>
         <tr><th>The network gets 8 inputs…</th><th>…and scores 4 actions</th></tr>
@@ -243,7 +259,7 @@
         <p><strong>The pilot is a neural network.</strong> Inputs on the left, actions on the right. Orange
           connections are positive and blue ones are negative; thicker means a larger weight. As the lander flies,
           the nodes light up with their values and the highest action score fires.</p>
-        <p>Nobody designed this network. It has no hidden nodes at all, just 17 of the 32 possible connections, and evolution found every one of them.</p>
+        <p>Nobody designed this network. It has one hidden node and 26 connections, and evolution found every one of them.</p>
       </div>
     </div>
   </div>
@@ -326,35 +342,38 @@
   <div class="wrap">
     <h2><span class="num">6</span>One generation</h2>
     <div class="loop">
-      <div><b>Evaluate</b><span>150 genomes each fly 5 episodes; fitness = average reward.</span></div>
+      <div><b>Evaluate</b><span>150 genomes each fly 5 windy episodes; fitness = average of score + centre bonus.</span></div>
       <div><b>Speciate</b><span>Group similar genomes by compatibility distance.</span></div>
       <div><b>Select</b><span>Inside each species the best 20% become parents; the 2 best survive unchanged.</span></div>
       <div><b>Reproduce</b><span>Crossover, then mutation, back to 150 genomes.</span></div>
     </div>
-    <div class="callout">Every genome in a generation flies the <em>same</em> 5 starts, so the ranking is
-      fair, and the starts change each generation. Because 5 episodes are noisy, each generation's champion
-      also flies <strong>100 episodes no genome ever trained on</strong>. "Solved" means at least 200 there.</div>
+    <div class="callout">Every genome in a generation flies the <em>same</em> 5 starts in the <em>same</em> wind,
+      so the ranking is fair, and starts and winds change each generation. (Gymnasium doesn't tie the gusts to the
+      reset seed, so <code>seed_wind</code> does.) Because 5 episodes are noisy, each generation's champion
+      also flies <strong>100 episodes no genome ever trained on</strong>. "Solved" means a game score of at least 200
+      there, without the bonus.</div>
   </div>
 </section>
 
 <section id="run-data">
   <div class="wrap">
     <h2><span class="num">7</span>The run, generation by generation</h2>
-    <p class="intro">313 generations × 150 genomes. Every genome of every generation is logged
+    <p class="intro">500 generations × 150 genomes. Every genome of every generation is logged
       (<code>data/population.csv.gz</code>), along with whole populations every 10 generations, so the run can be replayed.</p>
     <div class="split">
       <div class="shot"><img src="img/training.jpg" alt="Fitness of every genome in every generation, coloured by species, with the average and the champion's unseen score" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Every genome, every generation.</strong> Each dot is one genome, coloured by species. The
-          green line is each generation's champion on 100 unseen episodes. It first passes 200 at generation
-          37, and the best champion (generation 164) lands 95% of unseen episodes.</p>
+          green line is each generation's champion on 100 unseen episodes. It climbs to 150 by generation 42, then
+          stalls. The best champion came from generation 81 (score 182, 77% landings) and the other 400 generations
+          never beat it. <strong>In wind, the task was not solved.</strong></p>
       </div>
     </div>
     <div class="split flip">
       <div class="shot"><img src="img/species.jpg" alt="Stacked area chart of species sizes over the generations" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Species over time.</strong> The classic NEAT plot: each band is a species and its height is
-          its share of the population. 27 species appeared over the run. They split off, grew when they
+          its share of the population. 46 species appeared over the run. They split off, grew when they
           did well, and died out when they stagnated.</p>
       </div>
     </div>
@@ -362,14 +381,14 @@
       <div class="shot"><img src="img/ghosts.jpg" alt="Flight paths of every genome of one generation from the same start" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>150 flights, one start.</strong> All genomes of a generation fly the same scenario, drawn as
-          trails coloured by how they ended. Early on almost all of them crash; late in the run most land and the
-          trails bundle into one strategy.</p>
+          trails coloured by how they ended. Early on almost all of them crash. Later many land, but the wind keeps
+          the trails spread out: every gust needs a slightly different answer.</p>
       </div>
     </div>
     <div class="split flip">
       <div class="shot"><img src="img/growth.jpg" alt="The champion network at a late generation, with connection and hidden-node counts over the run" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p><strong>How the network changed.</strong> It starts fully connected: 32 connections, no hidden nodes. For about 160 generations evolution <em>removed</em> connections; the winner (generation 164) has <strong>no hidden nodes and 17 connections</strong>. Later the population grew to 15+ hidden nodes and 50+ connections, and those networks did <em>worse</em> on unseen episodes. Bigger is not automatically better, which is why NEAT starts minimal and why we select the winner on unseen episodes.</p>
+        <p><strong>How the network changed.</strong> It starts fully connected: 32 connections, no hidden nodes. The winner (generation 81) has <strong>one hidden node and 26 connections</strong>. After that the population kept growing, to 30+ hidden nodes and 80 connections, and those networks did <em>worse</em> on unseen episodes. Did the wind make hidden nodes necessary? <strong>No</strong>: see below.</p>
       </div>
     </div>
     <div class="split">
@@ -388,16 +407,23 @@
     <div class="split flip">
       <div class="shot"><img src="img/ablation.jpg" alt="Landing rate with each connection switched off, one at a time" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p>Switch off one connection at a time and fly 40 unseen episodes. 9 of the 17 connections can go
-          with almost no loss, and a few carry the whole skill:</p>
-        <ul><li><code>vy → main</code> (−12.8): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>angle → left</code> (−7.2): tilt drives the left engine: stays upright. Without it: <strong>5%</strong> landings.</li><li><code>R leg → right / none</code> (−1.4 / +2.4): right leg down: stop firing, do nothing. Without it: <strong>15% / 20%</strong> landings.</li></ul>
+        <p>Switch off one connection at a time and fly 40 unseen episodes (60% land with all of them). 19 of the 26
+          connections can go with almost no loss, and a few carry the whole skill:</p>
+        <ul><li><code>vy → main</code> (−12.0): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>angle → left</code> (−11.1): tilt drives the left engine: stays upright. Without it: <strong>15%</strong> landings.</li><li><code>L leg → right</code> (−3.9): a leg down holds back the right engine. Without it: <strong>32%</strong> landings.</li></ul>
       </div>
     </div>
-    <div class="callout"><strong>Where it still fails.</strong> On 1,000 more fresh flights the winner lands 96.8%.
-      16 of its 18 crashes end <em>right</em> of the pad, where it tips over on the slope. All 14 timeouts sit on the
-      pad, 8 of them with only the <em>left</em> leg down: the leg sensor the network ignores, so it never settles.
-      Every failure began with a hard sideways push. The full failure analysis is in
-      <code>experiments/</code>.</div>
+    <div class="callout"><strong>Did it need a hidden layer?</strong> Not really. Cut the winner's one hidden node
+      out completely and, on the same 100 test flights, it lands <strong>75%</strong> (score 161) instead of 72% (166).
+      Evolution added the node, but the skill doesn't depend on it.</div>
+    <div class="split">
+      <div class="shot"><img src="img/harder.jpg" alt="The no-wind champion and the new winner flying the same windy start, with a table of landing rates and scores" loading="lazy" width="1280" height="720"></div>
+      <div>
+        <p><strong>Is the wind hard enough?</strong> The calm-air champion lands 95% (score 254) without wind but
+          only 64% (116) in it. The new winner, trained in wind, lands 72% (166) and lands in the middle 36% of the
+          time, against 21%. The wind is clearly hard: too hard to solve in 500 generations. It still didn't force
+          a hidden layer.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -409,8 +435,8 @@ git clone https://github.com/JCA374/lunarlander-neat-wind && cd lunarlander-neat
 python3 -m venv .venv && source .venv/bin/activate
 pip install swig && pip install -r requirements.txt
 
-<span class="c"># evolve (about an hour on 8 cores; every log is written as it goes)</span>
-python train.py
+<span class="c"># evolve (about 1.5 h for 500 generations on 8 cores; every log is written as it goes)</span>
+python train.py --generations 500
 
 <span class="c"># watch it, test it, plot it</span>
 python demo.py runs/&lt;run&gt;
