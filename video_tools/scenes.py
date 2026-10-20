@@ -12,9 +12,10 @@ Parts: the problem (task, reward) · the network and its genome · how NEAT chan
 import numpy as np
 from PIL import Image, ImageDraw
 
-from common import (ABLATION_EPISODES, ACTION_COLORS, AMBER, BG, BLUE, FG, FPS, GREEN, H, MUTED, PANEL, RED, VIEW_H,
-                    VIEW_W, VIOLET, W, Scene, blank, ease, fade, fly, frame_at, heading, mix,
-                    outcome, paste_frame, step_at, terrain_frame, text, wrap)
+from common import (ABLATION_EPISODES, ACTION_COLORS, AMBER, BG, BLUE, CENTRED, FG, FPS, GREEN, H, MUTED, PANEL,
+                    RED, VIEW_H, VIEW_W, VIOLET, W, Scene, blank, ease, fade, fly, frame_at, heading, mix,
+                    outcome, paste_flight, step_at, terrain_frame, text, wrap)
+from neat_lander.env import CENTRE_BONUS, TURBULENCE_POWER, WIND_POWER
 from neat_lander.draw import draw_network, layout
 from neat_lander.labels import ACTION_NAMES, INPUT_NAMES
 
@@ -41,7 +42,7 @@ def scene_title(ctx, name='title'):
         tile = Image.blend(tile, Image.new('RGB', tile.size, BG), 0.62)
         img.paste(tile, (0, 0))
         d = ImageDraw.Draw(img)
-        text(d, (W // 2, 270), 'NEAT Lunar Lander', 72, FG, fade(t, 0.2, 0.8), bold=True, anchor='mm')
+        text(d, (W // 2, 270), 'NEAT Lunar Lander in wind', 72, FG, fade(t, 0.2, 0.8), bold=True, anchor='mm')
         text(d, (W // 2, 350), 'Evolving the weights and the shape of a neural network', 30, AMBER,
              fade(t, 0.7, 0.8), anchor='mm')
         return img
@@ -49,14 +50,22 @@ def scene_title(ctx, name='title'):
 
 
 def scene_task(ctx, name='task'):
-    """Beats: the game; the 8 inputs; the 4 actions."""
-    frames = ctx.best_ep['frames']
+    """Beats: the game; the 8 inputs; the 4 actions; the wind."""
+    ep = ctx.best_ep
+    n = len(ep['frames'])
 
     def render(t, b):
         img = blank()
         d = ImageDraw.Draw(img)
-        heading(d, 'The problem', t, 'Gymnasium LunarLander-v2')
-        paste_frame(img, frame_at(frames, t), (60, 140, 660, 440))
+        heading(d, 'The problem', t, 'Gymnasium LunarLander-v2, with wind')
+        paste_flight(img, ep, step_at(n, t), (60, 140, 660, 440))
+        a3 = fade(t, b.at(3))
+        if a3 > 0:
+            d.rounded_rectangle([60, 600, 720, 680], 10, fill=mix(BG, PANEL, a3))
+            text(d, (80, 612), f'wind: a sideways push of up to {WIND_POWER:.0f}, plus turbulence that',
+                 19, FG, a3, bg=PANEL)
+            text(d, (80, 642), f'twists the lander (up to {TURBULENCE_POWER}). Not one of the 8 inputs.',
+                 19, FG, a3, bg=PANEL)
         x0 = 770
         t1, t2 = b.at(1), b.at(2)
         text(d, (x0, 140), '8 inputs (what it senses)', 26, BLUE, fade(t, t1), bold=True)
@@ -66,37 +75,48 @@ def scene_task(ctx, name='task'):
         for i, nm in enumerate(ACTION_NAMES):
             text(d, (x0 + 10, 492 + 30 * i), f'{i}. {nm}', 21, FG, fade(t, t2 + 0.6 + 0.6 * i))
         return img
-    return Scene(name, render, [5.5, 6.0, 5.0])
+    return Scene(name, render, [5.5, 6.0, 5.0, 8.0])
 
 
 def scene_reward(ctx, name='reward'):
-    """Beats: shaping terms; one-off events; fuel; 'solved'."""
+    """Beats: shaping terms; one-off events; fuel; the centre bonus (ours); 'solved'."""
     items = [(0, '+', 'moving closer to the pad, slowing down, staying level', GREEN),
              (0, '−', 'drifting away, speeding up, tilting', RED),
              (1, '+10', 'each leg that touches the ground', GREEN),
              (1, '+100', 'coming to rest on the ground', GREEN),
              (1, '−100', 'crashing or flying off screen', RED),
              (2, '−0.3', 'every frame the main engine fires', AMBER),
-             (2, '−0.03', 'every frame a side engine fires', AMBER)]
-    frames = ctx.best_ep['frames']
+             (2, '−0.03', 'every frame a side engine fires', AMBER),
+             (3, f'+0…{CENTRE_BONUS:.0f}', 'our bonus: landing near the middle between the flags', BLUE)]
+    ep = ctx.best_ep
+    n = len(ep['frames'])
 
     def render(t, b):
         img = blank()
         d = ImageDraw.Draw(img)
         heading(d, 'The reward', t, 'what the game itself scores')
-        paste_frame(img, frame_at(frames, t), (60, 150, 420, 280))
+        box = (60, 150, 420, 280)
+        paste_flight(img, ep, step_at(n, t), box)
+        a = fade(t, b.at(3))
+        if a > 0:                       # the bonus: full in the middle, nothing at the flags
+            x, y, w, h = box
+            cx, half, base = x + w / 2, w / 2 * 0.2, y + h + 70
+            d.polygon([(cx - half, base), (cx, base - 50), (cx + half, base)], fill=mix(BG, BLUE, 0.7 * a))
+            d.line([x, base, x + w, base], fill=mix(BG, MUTED, a), width=1)
+            text(d, (cx, base - 56), f'+{CENTRE_BONUS:.0f}', 16, BLUE, a, bold=True, anchor='mb')
+            text(d, (cx, base + 8), 'bonus across the pad, flag to flag', 15, MUTED, a, anchor='ma')
         for k, (beat, v, s, col) in enumerate(items):
             start = b.at(beat) + 0.5 + 0.9 * sum(1 for it in items[:k] if it[0] == beat)
             a = fade(t, start)
             y = 150 + k * 58
             text(d, (540, y), v, 30, col, a, bold=True, mono=True)
             text(d, (680, y + 6), s, 21, FG, a)
-        a = fade(t, b.at(3))
-        d.rounded_rectangle([600, 580, 1220, 640], 12, fill=mix(BG, PANEL, a))
-        text(d, (910, 610), 'an average of 200 or more counts as solved', 22, AMBER, a,
+        a = fade(t, b.at(4))
+        d.rounded_rectangle([540, 612, 1220, 672], 12, fill=mix(BG, PANEL, a))
+        text(d, (880, 642), 'a game score of 200 or more counts as solved', 22, AMBER, a,
              anchor='mm', bg=PANEL)
         return img
-    return Scene(name, render, [6.0, 6.0, 5.0, 4.0])
+    return Scene(name, render, [6.0, 6.0, 5.0, 7.0, 5.0])
 
 
 # ----------------------------------------------------------------------------
@@ -129,7 +149,6 @@ def action_bars(d, ep, k, x0, y0, a=1.0):
 def scene_network(ctx, name='network'):
     """Beats: the pilot is a network (live); highest output fires; NEAT finds this network."""
     ep = ctx.best_ep
-    frames = ep['frames']
     n = len(ep['actions'])
     hidden, conns = ctx.run.size(ctx.winner)
 
@@ -138,7 +157,7 @@ def scene_network(ctx, name='network'):
         d = ImageDraw.Draw(img)
         heading(d, 'The pilot is a neural network', t, 'the evolved winner, flying')
         k = step_at(n, t, speed=0.8)
-        paste_frame(img, frames[k], (50, 150, 480, 320))
+        paste_flight(img, ep, k, (50, 150, 480, 320))
         live_network(img, ctx, ctx.winner, ep, k, (690, 150, 1060, 560))
         a1 = fade(t, b.at(1))
         if a1 > 0:
@@ -466,13 +485,14 @@ def scene_fitness(ctx, name='fitness'):
         d = ImageDraw.Draw(img)
         heading(d, 'Fitness: what "good" means', t)
         d.rounded_rectangle([80, 150, 1200, 230], 12, fill=PANEL)
-        text(d, (110, 172), f'fitness = average reward over {eps} episodes', 30, FG, fade(t, 0.3),
-             mono=True, bg=PANEL)
-        items = [(1, 'Every genome in a generation flies the same starting positions, so the comparison is '
-                     'fair. The starts change every generation, so nobody can memorise one.'),
+        text(d, (110, 172), f'fitness = average (reward + centre bonus) over {eps} episodes', 27, FG,
+             fade(t, 0.3), mono=True, bg=PANEL)
+        items = [(1, 'Every genome in a generation flies the same starting positions in the same wind, so the '
+                     'comparison is fair. Starts and wind change every generation, so nobody can memorise one.'),
                  (2, 'A score from 5 episodes is noisy: the top genome is often just lucky. So every '
                      'generation its champion also flies 100 episodes no genome ever trained on.'),
-                 (2, f'Solved = an average of {ctx.run.threshold:.0f} or more on those 100 unseen episodes.')]
+                 (2, f'Solved = an average game score of {ctx.run.threshold:.0f} or more on those 100 unseen '
+                     'episodes (without the bonus).')]
         for i, (beat, s) in enumerate(items):
             a = fade(t, b.at(beat) + 0.3 + (0.9 if i == 2 else 0))
             for j, line in enumerate(wrap(s, 80)):
@@ -566,6 +586,7 @@ def scene_gen_fitness(ctx, name='gen_fitness', keyframes=None):
             text(d, (x, 362), '100 unseen', 15, MUTED)
             text(d, (x, 382), f'{v["reward"]:.0f}', 30, GREEN, bold=True)
             text(d, (x, 420), f'{100 * v["landed"]:.0f}% land', 16, GREEN)
+            text(d, (x, 442), f'{100 * v["centred"]:.0f}% centred', 16, BLUE)
         if show > 0:
             for i, (col, lab) in enumerate([(BLUE, 'average'), (GREEN, 'champion, unseen')]):
                 y = 480 + i * 26
@@ -787,7 +808,7 @@ def scene_evolution(ctx, name='evolution'):
             k = min(step, len(ep['frames']) - 1)
             done = step >= len(ep['frames']) - 1
             lab, col = outcome(ep)
-            paste_frame(img, ep['frames'][k], (x, y, tw, th), border=col if done else PANEL)
+            paste_flight(img, ep, k, (x, y, tw, th), border=col if done else PANEL)
             text(d, (x, y - 26), label, 19, AMBER, bold=True)
             if done:
                 text(d, (x + tw, y + th + 8), f'{lab}  {ep["reward"]:+.0f}', 17, col, anchor='ra')
@@ -808,7 +829,6 @@ def conn_label(ctx, key):
 def scene_read(ctx, name='read'):
     """Beats: the winner's strongest connections, explained one by one while it flies."""
     ep = ctx.best_ep
-    frames = ep['frames']
     n = len(ep['actions'])
     abl = ctx.ablation()
     top = abl['ranked'][:3]
@@ -818,7 +838,7 @@ def scene_read(ctx, name='read'):
         d = ImageDraw.Draw(img)
         heading(d, 'Reading the evolved network', t, 'which connections matter?')
         k = step_at(n, t, speed=0.8)
-        paste_frame(img, frames[k], (50, 150, 450, 300))
+        paste_flight(img, ep, k, (50, 150, 450, 300))
         kb = b.index(t)
         hl = tuple(key for key, _ in top[:kb]) if kb > 0 else ()
         draw_network(img, ctx.winner, ctx.config, (660, 150, 1060, 560), values=ep['values'][k],
@@ -866,20 +886,67 @@ def scene_ablation(ctx, name='ablation'):
     return Scene(name, render, [7.0, 7.0])
 
 
+def scene_harder(ctx, name='harder'):
+    """Beats: the no-wind champion and the new winner fly the same windy start; the numbers."""
+    base = ctx.baseline()
+    seed = base['seed']
+    old = fly(base['genome'], base['config'], seed)
+    new = fly(ctx.winner, ctx.config, seed)
+    s = ctx.stats
+    tw, th, y0 = 560, 373, 150
+    xs = (60, 660)
+    rows = [('no-wind champion, calm air', base['calm'], MUTED),
+            ('no-wind champion, in wind', base['wind'], RED),
+            ('new winner, in wind', s, GREEN)]
+
+    def render(t, b):
+        img = blank()
+        d = ImageDraw.Draw(img)
+        heading(d, 'Is the wind hard enough?', t, 'the old no-wind champion against the new winner')
+        step = int(max(0.0, t - 0.6) * FPS * 1.4)
+        a1 = fade(t, b.at(1))
+        for x, (label, ep) in zip(xs, [('old champion (trained without wind)', old), ('new winner', new)]):
+            k = min(step, len(ep['frames']) - 1)
+            done = step >= len(ep['frames']) - 1
+            lab, col = outcome(ep)
+            paste_flight(img, ep, k, (x, y0, tw, th), border=col if done else PANEL, dim=0.6 * a1)
+            text(d, (x, y0 - 28), label, 19, AMBER, bold=True)
+            if done:
+                where = 'in the middle' if ep['landed'] and abs(ep['x_final']) < CENTRED else ''
+                text(d, (x + tw, y0 + th + 8), f'{lab} {where}  {ep["reward"]:+.0f}', 17, col, anchor='ra')
+        if a1 > 0:
+            d.rounded_rectangle([140, 200, 1140, 490], 14, fill=mix(BG, PANEL, a1))
+            for j, h in enumerate(['landed', 'in the middle', 'game score']):
+                text(d, (720 + j * 150, 222), h, 16, MUTED, a1, anchor='ma', bg=PANEL)
+            for i, (lab, st, col) in enumerate(rows):
+                a = fade(t, b.at(1) + 0.4 + 0.8 * i)
+                y = 272 + i * 62
+                text(d, (170, y), lab, 22, col, a, bold=True, bg=PANEL)
+                for j, v in enumerate([f'{st["landing_rate"]:.0f}%', f'{st["centred_rate"]:.0f}%',
+                                       f'{st["avg_reward"]:.0f}']):
+                    text(d, (720 + j * 150, y), v, 24, FG, a, anchor='ma', mono=True, bg=PANEL)
+            text(d, (W // 2, 456), '100 test episodes each, never seen in training', 16, MUTED, a1, anchor='ma',
+                 bg=PANEL)
+        return img
+    longest = max(len(old['frames']), len(new['frames'])) / (FPS * 1.4)
+    return Scene(name, render, [max(7.0, longest + 1.5), 9.0], min_beats=[longest + 1.0, 0])
+
+
 def scene_outro(ctx, name='outro'):
     s = ctx.stats
     h, c = ctx.run.size(ctx.winner)
     items = [(f'{s["landing_rate"]:.0f}%', 'landing rate', GREEN),
-             (f'{s["avg_reward"]:.0f}', 'average reward', AMBER),
-             (f'{h}', 'hidden nodes', BLUE),
+             (f'{s["centred_rate"]:.0f}%', 'landed in the middle', BLUE),
+             (f'{s["avg_reward"]:.0f}', 'average game score', AMBER),
+             (f'{h}', 'hidden nodes', VIOLET),
              (f'{c}', 'connections', FG)]
 
     def render(t, b):
         img = blank()
         d = ImageDraw.Draw(img)
-        heading(d, 'Results', t, '100 new episodes, never seen in training')
+        heading(d, 'Results', t, '100 new windy episodes, never seen in training')
         for i, (v, lab, col) in enumerate(items):
-            x = 190 + i * 300
+            x = 160 + i * 240
             a = fade(t, 0.5 + 0.3 * i)
             text(d, (x, 260), v, 72, col, a, bold=True, anchor='mm')
             text(d, (x, 320), lab, 20, MUTED, a, anchor='mm')

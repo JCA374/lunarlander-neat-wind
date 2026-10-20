@@ -21,8 +21,8 @@ CENTRED = 0.1                   # |x| below this counts as a centred landing
 VIEW_W, VIEW_H, SCALE = 600, 400, 30.0
 
 
-def make_env(render_mode=None):
-    return gym.make(ENV_ID, render_mode=render_mode, enable_wind=True, wind_power=WIND_POWER,
+def make_env(render_mode=None, wind=True):
+    return gym.make(ENV_ID, render_mode=render_mode, enable_wind=wind, wind_power=WIND_POWER,
                     turbulence_power=TURBULENCE_POWER)
 
 
@@ -37,7 +37,7 @@ def seed_wind(env, seed):
 def wind_force(env):
     """The sideways wind force the next env.step will apply (the same formula as gymnasium)."""
     u = env.unwrapped
-    if u.legs[0].ground_contact or u.legs[1].ground_contact:
+    if not u.enable_wind or u.legs[0].ground_contact or u.legs[1].ground_contact:
         return 0.0
     k = u.wind_idx
     return math.tanh(math.sin(0.02 * k) + math.sin(math.pi * 0.01 * k)) * u.wind_power

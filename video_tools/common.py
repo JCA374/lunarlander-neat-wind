@@ -21,7 +21,8 @@ sys.path.insert(0, REPO_ROOT)
 from neat_lander import labels, runs  # noqa: E402
 from neat_lander.draw import (AMBER, BG, BLUE, FG, GREEN, MUTED, PANEL, RED, VIOLET,  # noqa: E402,F401
                               font, mix)
-from neat_lander.env import MAX_STEPS, VIEW_H, VIEW_W, make_env, make_net, run_episode  # noqa: E402,F401
+from neat_lander.env import (CENTRED, MAX_STEPS, PAD_HALF_WIDTH, VIEW_H, VIEW_W, WIND_POWER,  # noqa: E402,F401
+                             make_env, make_net, run_episode)
 from neat_lander.recorder import network_size  # noqa: E402
 from timeline import Scene  # noqa: E402,F401
 
@@ -101,17 +102,31 @@ def wrap(s, width):
     return lines + [cur] if cur else lines
 
 
-def title_card(name, kicker, title, sub, dur=5.0):
-    """A lesson's opening card."""
-    def render(t, b):
-        img = blank()
-        d = ImageDraw.Draw(img)
-        text(d, (W // 2, 250), kicker, 26, AMBER, fade(t, 0.1), bold=True, anchor='mm')
-        text(d, (W // 2, 330), title, 60, FG, fade(t, 0.3, 0.6), bold=True, anchor='mm')
-        d.rectangle([W // 2 - int(80 * fade(t, 0.5)), 380, W // 2 + int(80 * fade(t, 0.5)), 384], fill=AMBER)
-        text(d, (W // 2, 430), sub, 24, MUTED, fade(t, 0.7, 0.6), anchor='mm')
-        return img
-    return Scene(name, render, [dur])
+def wind_gauge(img, box, force, a=1.0):
+    """A wind arrow in the top-left corner of a game frame at `box`; length = force / WIND_POWER."""
+    if force is None or a <= 0:
+        return
+    d = ImageDraw.Draw(img)
+    x, y, w, h = box
+    s = max(0.6, w / 600)
+    cx, cy, half = x + 90 * s, y + 24 * s, 70 * s
+    d.line([cx - half, cy, cx + half, cy], fill=mix(BG, MUTED, 0.5 * a), width=1)
+    tip = cx + half * max(-1.0, min(1.0, force / WIND_POWER))
+    if abs(tip - cx) > 3:
+        sgn = 1 if tip > cx else -1
+        col = mix(BG, (64, 210, 220), a)
+        d.line([cx, cy, tip, cy], fill=col, width=max(3, int(6 * s)))
+        d.polygon([(tip + sgn * 10 * s, cy), (tip - sgn * 4 * s, cy - 10 * s), (tip - sgn * 4 * s, cy + 10 * s)],
+                  fill=col)
+    text(d, (cx, cy + 14 * s), 'wind', max(12, int(16 * s)), MUTED, a, anchor='ma')
+
+
+def paste_flight(img, ep, k, box, border=None, dim=0.0):
+    """Frame k of a recorded episode, with its wind arrow."""
+    k = min(k, len(ep['frames']) - 1)
+    paste_frame(img, ep['frames'][k], box, border, dim)
+    if ep.get('wind'):
+        wind_gauge(img, box, ep['wind'][min(k, len(ep['wind']) - 1)], 1.0 - dim)
 
 
 def terrain_frame(seed):
@@ -161,12 +176,13 @@ def fly(genome, config, seed, frames=True, path=False, trace=False):
     return run_episode(make_net(genome, config), seed, frames=frames, path=path, trace=trace)
 
 
-def test(genome, config, episodes=100):
-    env = make_env()
+def test(genome, config, episodes=100, wind=True):
+    env = make_env(wind=wind)
     net = make_net(genome, config)
     eps = [run_episode(net, TEST_SEED0 + i, env=env) for i in range(episodes)]
     env.close()
     return {'landing_rate': 100 * np.mean([e['landed'] for e in eps]),
+            'centred_rate': 100 * np.mean([e['landed'] and abs(e['x_final']) < CENTRED for e in eps]),
             'avg_reward': float(np.mean([e['reward'] for e in eps])),
             'avg_steps': float(np.mean([e['steps'] for e in eps]))}
 
@@ -256,3 +272,27 @@ class Context:
             return {'full': rate(self.winner), 'rates': rates,
                     'ranked': sorted(rates.items(), key=lambda kv: kv[1])}
         return self.cached('ablation', run)
+
+    def baseline(self):
+        """The no-wind champion (experiments/baseline/) without and with wind, and a test seed where
+        it misses the middle in wind while the new winner lands there."""
+        def run():
+            d = os.path.join(REPO_ROOT, 'experiments', 'baseline')
+            genome = runs.load_pickle(os.path.join(d, 'nowind_winner.pkl'))
+            config = runs.load_config(os.path.join(d, 'nowind_config.ini'))
+            out = {'calm': test(genome, config, wind=False), 'wind': test(genome, config)}
+            seed = TEST_SEED0
+            for s in range(TEST_SEED0, TEST_SEED0 + 100):
+                old = fly(genome, config, s, frames=False)
+                new = fly(self.winner, self.config, s, frames=False)
+                if (old['outcome'] == 'crashed' and new['landed'] and abs(new['x_final']) < CENTRED
+                        and new['steps'] < 450):
+                    seed = s
+                    break
+            out['seed'] = seed
+            return out
+        out = self.cached('baseline', run)
+        d = os.path.join(REPO_ROOT, 'experiments', 'baseline')
+        out['genome'] = runs.load_pickle(os.path.join(d, 'nowind_winner.pkl'))
+        out['config'] = runs.load_config(os.path.join(d, 'nowind_config.ini'))
+        return out
