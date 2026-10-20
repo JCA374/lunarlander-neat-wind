@@ -212,28 +212,16 @@
 <main id="overview">
 <div class="wrap">
   <div class="hero">
-    <h1>Evolving a network's <em>weights and shape</em></h1>
+    <h1>Evolving a network's <em>weights and shape</em>, in wind</h1>
     <p class="lede">NEAT (NeuroEvolution of Augmenting Topologies) starts from the simplest possible network
       and lets evolution add hidden nodes and connections only where they help. Here it learns to land
-      Gymnasium's LunarLander. It uses no gradients and no backpropagation, just a population that improves
+      Gymnasium's LunarLander with wind switched on. It uses no gradients and no backpropagation, just a population that improves
       every generation.</p>
 
-    <div class="video-card">
-      <video controls preload="metadata" poster="img/poster.jpg" playsinline>
-        <source src="explainer.mp4" type="video/mp4">
-        <track kind="captions" src="explainer.vtt" srclang="en" label="English">
-        Your browser can't play this video. <a href="explainer.mp4">Download it instead</a>.
-      </video>
-    </div>
-    <p class="video-note">10-minute narrated explainer (captions in the player menu). Every frame was
-      rendered from this repository's code and its training run.</p>
-
-    <div class="stats">
-      <div class="stat"><b>95%</b><span>landing rate on 100 unseen episodes</span></div>
-      <div class="stat"><b>254</b><span>average episode reward (≥ 200 counts as solved)</span></div>
-      <div class="stat"><b>37</b><span>first generation to pass 200 on unseen episodes</span></div>
-      <div class="stat"><b>0 + 17</b><span>hidden nodes + connections in the winner</span></div>
-    </div>
+    <div class="callout"><strong>Work in progress.</strong> This is the wind version of
+      <a href="https://jca374.github.io/lunarlander-neat/">NEAT Lunar Lander</a>: the lander now flies in gusts it
+      cannot sense, and earns a bonus for landing in the middle between the flags. The training run and the new
+      explainer video are coming. Until then, the pictures below come from the original no-wind run.</div>
   </div>
 </div>
 
