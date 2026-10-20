@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NEAT Lunar Lander</title>
-<meta name="description" content="NEAT evolves the weights and the shape of a neural network that lands Gymnasium's LunarLander. Explainer video, lessons and code.">
+<meta name="description" content="NEAT evolves the weights and the shape of a neural network that lands Gymnasium's LunarLander. Explainer video and code.">
 <meta property="og:title" content="NEAT Lunar Lander">
 <meta property="og:description" content="Evolving a neural network, weights and shape, to land on the Moon.">
 <meta property="og:image" content="img/poster.jpg">
@@ -185,56 +185,7 @@
     color: var(--muted); font-size: 14px;
   }
 
-  .tabs {
-    display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin: 4px 0 0;
-  }
-  .tabs a {
-    padding: 10px 16px; text-decoration: none; color: var(--muted); font-weight: 600;
-    border-bottom: 3px solid transparent; margin-bottom: -1px;
-  }
-  .tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--accent); }
-  [hidden] { display: none !important; }
-
-  .lessons { display: grid; grid-template-columns: 270px 1fr; gap: 28px; padding: 28px 0 10px; }
-  .lesson-list { list-style: none; margin: 0; padding: 0; position: sticky; top: 12px; align-self: start; }
-  .lesson-list a {
-    display: grid; grid-template-columns: 30px 1fr; gap: 2px 10px; align-items: baseline;
-    padding: 10px 12px; border-radius: 10px; text-decoration: none; color: var(--text);
-  }
-  .lesson-list a:hover { background: var(--surface-2); }
-  .lesson-list a[aria-current="true"] { background: var(--accent-bg); }
-  .lesson-list .n {
-    grid-row: span 2; display: inline-grid; place-items: center; width: 28px; height: 28px;
-    border-radius: 50%; background: var(--surface-2); color: var(--accent); font-weight: 700; font-size: 14px;
-  }
-  .lesson-list a[aria-current="true"] .n { background: var(--accent); color: var(--bg); }
-  .lesson-list .t { font-weight: 600; line-height: 1.3; }
-  .lesson-list .d { color: var(--muted); font-size: 13.5px; }
-  .lesson h2 { font-size: clamp(25px, 3.4vw, 32px); letter-spacing: -.015em; margin: 0 0 4px; }
-  .lesson h2 .num { color: var(--accent); margin-right: 8px; }
-  .lesson .sub { color: var(--muted); margin: 0 0 16px; }
-  .lesson .points { margin: 20px 0 8px; padding-left: 20px; }
-  .lesson .points li { margin-bottom: 8px; }
-  .lesson details {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-    padding: 10px 16px; margin: 16px 0;
-  }
-  .lesson summary { cursor: pointer; font-weight: 600; }
-  .lesson details p { color: var(--muted); margin: 10px 0; }
-  .pager { display: flex; justify-content: space-between; gap: 12px; margin: 20px 0 0; }
-  .pager a {
-    flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px;
-    text-decoration: none; color: var(--text); background: var(--surface);
-  }
-  .pager a span { display: block; color: var(--muted); font-size: 13px; }
-  .pager a.next { text-align: right; }
-  .pager a[aria-disabled="true"] { visibility: hidden; }
-
   @media (max-width: 760px) {
-    .lessons { grid-template-columns: 1fr; }
-    .lesson-list { position: static; display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; }
-    .lesson-list a { grid-template-columns: 28px; white-space: nowrap; }
-    .lesson-list .t, .lesson-list .d { display: none; }
     .split, .split.flip { grid-template-columns: 1fr; }
     .split.flip > :first-child { order: 0; }
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -256,10 +207,6 @@
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle color theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg></button>
     </nav>
   </header>
-  <nav class="tabs" aria-label="Page">
-    <a href="#overview" id="tab-overview">Overview</a>
-    <a href="#lessons" id="tab-lessons">Lessons</a>
-  </nav>
 </div>
 
 <main id="overview">
@@ -279,8 +226,7 @@
       </video>
     </div>
     <p class="video-note">10-minute narrated explainer (captions in the player menu). Every frame was
-      rendered from this repository's code and its training run. Want it step by step?
-      <a href="#lessons">Take the 7 short lessons →</a></p>
+      rendered from this repository's code and its training run.</p>
 
     <div class="stats">
       <div class="stat"><b>95%</b><span>landing rate on 100 unseen episodes</span></div>
@@ -484,31 +430,9 @@ python evaluate.py runs/&lt;run&gt;
 python visualize_all.py runs/&lt;run&gt;
 
 <span class="c"># regenerate this page's videos from your own run (narration: see README)</span>
-python video_tools/make_explainer.py runs/&lt;run&gt;
-python video_tools/make_lessons.py runs/&lt;run&gt;</pre>
+python video_tools/make_explainer.py runs/&lt;run&gt;</pre>
   </div>
 </section>
-</main>
-
-<main id="lessons" hidden>
-  <div class="wrap">
-    <div class="lessons">
-      <ol class="lesson-list" id="lessonList"></ol>
-      <article class="lesson" id="lesson">
-        <h2><span class="num" id="lNum">1</span><span id="lTitle"></span></h2>
-        <p class="sub" id="lSub"></p>
-        <div class="video-card">
-          <video id="lVideo" controls preload="metadata" playsinline></video>
-        </div>
-        <ul class="points" id="lPoints"></ul>
-        <details id="lTranscript"><summary>Transcript</summary><div id="lText"></div></details>
-        <div class="pager">
-          <a id="lPrev" href="#"><span>← Previous</span><b></b></a>
-          <a id="lNext" class="next" href="#"><span>Next →</span><b></b></a>
-        </div>
-      </article>
-    </div>
-  </div>
 </main>
 
 <div class="wrap">
@@ -539,105 +463,6 @@ python video_tools/make_lessons.py runs/&lt;run&gt;</pre>
     });
   })();
 
-  // Tabs + lessons (hash routes: #overview, #<section>, #lessons, #lessons/3)
-  (function () {
-    var POINTS = {
-      1: ['The lander senses 8 numbers: position, velocity, tilt, spin and two leg-contact switches.',
-          'It picks one of 4 actions: nothing, left engine, main engine, right engine.',
-          'The game rewards approaching the pad and landing (+100) and punishes crashing (−100) and fuel use. An average of 200 counts as solved.',
-          'That episode reward is exactly the fitness NEAT optimises.'],
-      2: ['A network: inputs on the left, weighted connections, 4 action scores on the right; the highest score fires.',
-          'A genome lists node genes and connection genes (from, to, weight, enabled). Reading it builds the network.',
-          'Every connection gene has an innovation number: a historical marker shared by genes of the same origin.',
-          'The evolved winner has no hidden nodes and 17 of the 32 possible connections.'],
-      3: ['Weight mutation: each weight has an 80% chance of a small nudge.',
-          'Add connection (50% of children): wire two unconnected nodes, with a new innovation number.',
-          'Add node (20%): split a connection; in-weight 1, out-weight = old weight, so behaviour barely changes.',
-          'In the run, evolution first pruned connections; the late, much bigger networks flew worse.'],
-      4: ['Line two parents up by innovation number: matching, disjoint and excess genes.',
-          'Matching genes come from either parent at random; disjoint and excess from the fitter parent.',
-          'One generation: evaluate → speciate → select (best 20% per species, 2 elites) → reproduce.'],
-      5: ['New structure starts out weak, so it needs protection to survive long enough to be tuned.',
-          'Compatibility distance: δ = (c₁·D + c₂·Σ|Δw|) / N; same species if δ < 2.2.',
-          'Species share their offspring; a species that stagnates for 20 generations dies out.',
-          '27 species appeared over this run.'],
-      6: ['Fitness = average reward over 5 episodes, with the same starts for every genome in a generation.',
-          'Each generation\'s champion also flies 100 unseen episodes; solved at generation 37.',
-          'Even late in the run many children crash: mutation keeps breaking things, and that is the price of searching.',
-          'Champions from generation 0, 10, 25, 50, 100 and the winner fly the same start.'],
-      7: ['Switch one connection off at a time and measure the landing rate.',
-          'Falling speed → main engine is the brake; without it the lander never lands.',
-          'Tilt → left engine keeps it upright; the right leg sensor tells it to stop firing after touchdown.',
-          '9 of the 17 connections can go with almost no loss.',
-          'Failures: crashes end right of the pad; timeouts sit on the pad with only the ignored left leg down.']
-    };
-    var lessons = [], current = 0;
-    var $ = function (id) { return document.getElementById(id); };
-    function fmt(sec) { var m = Math.floor(sec / 60), s = Math.round(sec % 60); return m + ':' + (s < 10 ? '0' : '') + s; }
-
-    function showLesson(n) {
-      var L = lessons[n - 1];
-      if (!L) return;
-      current = n;
-      $('lNum').textContent = n;
-      $('lTitle').textContent = L.title;
-      $('lSub').textContent = L.subtitle + ' · ' + fmt(L.seconds);
-      var v = $('lVideo');
-      v.pause();
-      v.innerHTML = '<source src="lessons/' + L.slug + '.mp4" type="video/mp4">' +
-        '<track kind="captions" src="lessons/' + L.slug + '.vtt" srclang="en" label="English">';
-      v.poster = 'lessons/' + L.slug + '.jpg';
-      v.load();
-      $('lPoints').innerHTML = (POINTS[n] || []).map(function (p) { return '<li>' + p + '</li>'; }).join('');
-      $('lText').innerHTML = L.transcript.map(function (t) {
-        return '<p>' + t.text.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</p>';
-      }).join('');
-      $('lTranscript').open = false;
-      var prev = lessons[n - 2], next = lessons[n];
-      $('lPrev').setAttribute('aria-disabled', prev ? 'false' : 'true');
-      $('lNext').setAttribute('aria-disabled', next ? 'false' : 'true');
-      if (prev) { $('lPrev').href = '#lessons/' + (n - 1); $('lPrev').querySelector('b').textContent = prev.title; }
-      if (next) { $('lNext').href = '#lessons/' + (n + 1); $('lNext').querySelector('b').textContent = next.title; }
-      var list = $('lessonList');
-      Array.prototype.forEach.call(list.querySelectorAll('a'), function (a, i) {
-        a.setAttribute('aria-current', i === n - 1 ? 'true' : 'false');
-        if (i === n - 1 && list.scrollWidth > list.clientWidth) list.scrollLeft = a.parentNode.offsetLeft - 40;
-      });
-    }
-
-    function route() {
-      var h = location.hash.replace(/^#/, '') || 'overview';
-      var m = h.match(/^lessons(?:\/(\d+))?$/);
-      var onLessons = !!m;
-      $('overview').hidden = onLessons;
-      $('lessons').hidden = !onLessons;
-      $('tab-overview').setAttribute('aria-current', onLessons ? 'false' : 'page');
-      $('tab-lessons').setAttribute('aria-current', onLessons ? 'page' : 'false');
-      document.querySelectorAll('video').forEach(function (v) { if (v.closest('[hidden]')) v.pause(); });
-      if (onLessons) {
-        var n = m[1] ? parseInt(m[1], 10) : (current || 1);
-        if (lessons.length) showLesson(Math.min(Math.max(n, 1), lessons.length));
-        else current = n;
-        window.scrollTo(0, 0);
-      } else if (h !== 'overview') {
-        var el = document.getElementById(h);
-        if (el) el.scrollIntoView();
-      } else {
-        window.scrollTo(0, 0);
-      }
-    }
-
-    fetch('lessons/lessons.json').then(function (r) { return r.json(); }).then(function (data) {
-      lessons = data;
-      $('lessonList').innerHTML = data.map(function (L) {
-        return '<li><a href="#lessons/' + L.n + '"><span class="n">' + L.n + '</span><span class="t">' +
-          L.title + '</span><span class="d">' + fmt(L.seconds) + ' · ' + L.subtitle + '</span></a></li>';
-      }).join('');
-      route();
-    });
-    window.addEventListener('hashchange', route);
-    route();
-  })();
 </script>
 </body>
 </html>
