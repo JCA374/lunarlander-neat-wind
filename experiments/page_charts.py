@@ -208,18 +208,19 @@ def reference(summary):
 
 
 def compare(cmp_):
-    rows = [('A', 'first wind run'), ('B', 'steadier search'), ('C', 'B + memory allowed')]
-    W, H, x0, pw, rh = 720, 170, 200, 380, 46
+    rows = [('A', 'first wind run'), ('B', 'steadier search'), ('C', 'B + loops allowed'),
+            ('D', 'B + protected memory')]
+    W, H, x0, pw, rh = 720, 216, 200, 380, 46
     body = []
     for v in (0, 25, 50, 75, 100):
         x = x0 + v / 100 * pw
-        body.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="6" y2="{10 + rh * 3}" stroke="var(--line)"/>')
+        body.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="6" y2="{10 + rh * len(rows)}" stroke="var(--line)"/>')
         body.append(t(x, H - 8, f'{v}%', 12, anchor='middle'))
     for i, (k, lab) in enumerate(rows):
         r = cmp_['results'][k]
         y = 12 + i * rh
         body.append(t(x0 - 10, y + 19, f'{k}: {lab}', 13, 'var(--text)', 'end'))
-        body.append(bar_right(x0, y + 4, r['landed'] * pw, 24, 'var(--c3)' if k == 'C' else 'var(--muted)',
+        body.append(bar_right(x0, y + 4, r['landed'] * pw, 24, 'var(--c3)' if k == 'D' else 'var(--muted)',
                               f'run {k}: {100 * r["landed"]:.0f}% landed (95% CI {100 * r["landed_ci"][0]:.0f}-'
                               f'{100 * r["landed_ci"][1]:.0f}%), average score {r["reward"]:.0f}, '
                               f'{100 * r["centred"]:.0f}% in the middle'))
@@ -227,7 +228,7 @@ def compare(cmp_):
         body.append(f'<line x1="{lo:.1f}" x2="{hi:.1f}" y1="{y + 16}" y2="{y + 16}" stroke="var(--text)" stroke-width="2"/>')
         body.append(t(max(x0 + r['landed'] * pw, hi) + 12, y + 21, f'{100 * r["landed"]:.0f}% landed  ·  score {r["reward"]:.0f}',
                       13, 'var(--text)'))
-    return svg(W, H, ''.join(body), 'Landing rate of the three run winners on the same 1,000 flights')
+    return svg(W, H, ''.join(body), 'Landing rate of the four run winners on the same 1,000 flights')
 
 
 def loops(points):

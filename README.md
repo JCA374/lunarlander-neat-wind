@@ -18,15 +18,16 @@ enough for evolution to *need* hidden structure:
 
 **Explainer video and pictures:** https://jca374.github.io/lunarlander-neat-wind/
 
-## Results: three runs, none solved, no hidden layer needed
+## Results: four runs, none solved, no hidden layer needed
 
 | Run | Config | What changed | Winner on 1,000 analysis flights |
 |---|---|---|---|
 | A `runs/run_wind_20261020` | `neat-config.ini` | classic NEAT | 69% landed, score 160, 1 hidden node |
 | B `runs/run_wind_b` | `neat-config-b.ini` + `--reeval-top 10` | top 10 re-flown on 30 extra episodes; fewer structural mutations; `max_stagnation` 40 | 71% landed, score 169, 2 hidden nodes |
-| C `runs/run_wind_c` | `neat-config-c.ini` + `--reeval-top 10` | B + `feed_forward = False` (loops, memory) | **80% landed, score 171**, 0 hidden nodes, 0 loops |
+| C `runs/run_wind_c` | `neat-config-c.ini` + `--reeval-top 10` | B + `feed_forward = False` (loops, memory) | 80% landed, score 171, 0 hidden nodes, 0 loops |
+| D `runs/run_wind_d` | `neat-config-d.ini` + `--reeval-top 10`, 1,500 generations | C + 2 protected memory nodes (`neat_lander/genome.py`) | **85% landed, score 191** [185, 197], 3 hidden nodes, 2 loops |
 
-None reached an average game score of 200. The video and page use run C's winner. What we learned
+None reached an average game score of 200. The video and page use run D's winner. What we learned
 (`experiments/analyze_flights.py`, `experiments/compare_runs.py`, and the page's "Why it fails" and "Memory" sections):
 
 - **A steady push from one side is what kills the lander.** Gusts are survivable; a flight with a strong steady
@@ -35,10 +36,11 @@ None reached an average game score of 200. The video and page use run C's winner
 - **Five windy episodes make selection lucky.** In run A the top genome by 5 episodes was much worse on 100, and
   better genomes went unnoticed. Re-flying the top 10 (runs B and C) cut the luck gap from about 90 to about 25
   points and doubled the typical champion's score, but didn't raise the best one.
-- **Evolution dropped the memory.** Run C started every genome with 4 loops; by generation 200 only 1% had any,
-  and the winner has none. Its edge over B (+9 landings in 100, CI +6 to +13) is not from remembering; with one run
-  per setup it may be luck between runs.
-- **More generations don't help.** All three runs plateaued after generation 100-200.
+- **Evolution doesn't use memory.** Run C started every genome with 4 loops; by generation 200 only 1% had any,
+  and the winner has none. Run D's memory nodes couldn't be deleted, but switching them off changes not a single
+  one of 1,000 flights.
+- **With the steadier search, long training pays off.** A, B and C plateaued after generation 100-200. Run D kept
+  improving until about generation 1,100 (+20 over C, CI +12 to +29), then slid back; it was stopped at 1,500.
 
 ## Quick start
 

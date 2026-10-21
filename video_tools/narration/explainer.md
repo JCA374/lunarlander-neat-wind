@@ -50,7 +50,7 @@ The action with the highest score fires. Watch the scores change as the lander f
 
 ## network.3
 
-This network has no hidden nodes at all, just twenty-two connections. Nobody designed it. Evolution found every weight, and decided which connections to keep.
+This network has three hidden nodes and twenty-two connections. Two of those nodes are memory nodes that every network was given at the start, and that evolution was not allowed to delete. Nobody designed the rest. Evolution found every weight, and decided which connections to keep.
 
 ## genome
 
@@ -130,15 +130,15 @@ But five windy flights are noisy, and the top genome is often just lucky. So the
 
 ## gen_fitness
 
-Now the real run, five hundred generations. Every dot is one genome, and its color shows its species. In generation zero, every network is just the inputs wired straight to the outputs, with random weights. Almost all of them crash.
+Now the real run, fifteen hundred generations. Every dot is one genome, and its color shows its species. In generation zero, every network is the inputs wired to the outputs, plus the two memory nodes, with random weights. Almost all of them crash.
 
 ## gen_fitness.2
 
-Generation by generation, the cloud of dots creeps upward. By generation seventy-four, the champion scores a hundred and fifty on unseen flights.
+Generation by generation, the cloud of dots creeps upward. By generation one hundred and twenty-four, the champion scores a hundred and fifty on unseen flights.
 
 ## gen_fitness.3
 
-The green line is the champion on the hundred unseen flights. It never quite reaches two hundred. The best champion came from generation one hundred and ninety-seven, with a score of a hundred and eighty-seven, and three hundred more generations never beat it. In wind, this problem is still not solved.
+Progress is slow, but it keeps coming. Only after a thousand generations does the champion pass a hundred and ninety. The best, from generation one thousand and ninety, scores a hundred and ninety-nine on its hundred unseen flights, just short of two hundred. After that, it slides back. In wind, this problem is still not quite solved.
 
 ## species
 
@@ -146,7 +146,7 @@ This is the classic NEAT picture. Each band is one species, and its height is ho
 
 ## species.2
 
-New species split off, grow when they do well, and shrink and die when they stop improving. Over the whole run, thirty-five species came and went.
+New species split off, grow when they do well, and shrink and die when they stop improving. Over the whole run, one hundred and seventeen species came and went.
 
 ## gen_ghosts
 
@@ -170,7 +170,7 @@ This is how the champion's network changed. It started fully connected, with all
 
 ## growth.2
 
-This time the networks stayed small, because adding new nodes was made rarer. The winner, from generation one hundred and ninety-seven, has no hidden nodes at all, and twenty-two connections. This run was also allowed to grow loops, a kind of memory. The winner has none. More on that in a moment.
+Adding nodes was made rarer, so the networks stayed small. The winner, from generation one thousand and ninety, has three hidden nodes, two of them the protected memory nodes, and twenty-two connections. Whether it actually uses that memory, we'll test in a moment.
 
 ## evolution
 
@@ -190,11 +190,11 @@ The most important connection runs from the falling speed to the main engine, wi
 
 ## read.3
 
-Next, the tilt angle feeds the left engine. This is one half of what keeps the lander upright. Without it, only twenty percent of these flights land.
+Next, the right leg sensor votes for doing nothing. Once a leg is down, the lander stops firing and settles. Without it, only eighteen percent of these flights land.
 
 ## read.4
 
-And the tilt also feeds the right engine, the other way round. That is the other half. Without it, again only twenty percent land.
+And the tilt angle feeds the right engine. This is part of what keeps the lander upright. Without it, only twenty-eight percent land.
 
 ## ablation
 
@@ -202,11 +202,11 @@ Here are the connections that matter most, ranked by how much the landing rate d
 
 ## ablation.2
 
-Only six of the twenty-two connections can go with almost no loss. This small network uses nearly everything it has.
+Twelve of the twenty-two connections can go with almost no loss. A handful of them carry the whole skill.
 
 ## ablation.3
 
-And there are no hidden nodes to switch off. Every connection runs straight from a sense to an action. Even in wind, evolution found no use for hidden structure.
+And the hidden nodes, memory included? Cut all three out, and on a hundred test flights the lander does just as well. Eighty-five percent landings without them, eighty-three with them. Evolution kept the memory nodes because it had to, but the skill doesn't use them.
 
 ## harder
 
@@ -214,7 +214,7 @@ So, is the wind hard enough? Here is the champion from the calm-air version of t
 
 ## harder.2
 
-In calm air, the old champion landed ninety-five percent of the time, with a score of two hundred and fifty-four. In wind, it drops to sixty-four percent, and a hundred and sixteen. The new winner, trained in wind, lands eighty-one percent, with a score of a hundred and seventy-four, and far more landings in the middle.
+In calm air, the old champion landed ninety-five percent of the time, with a score of two hundred and fifty-four. In wind, it drops to sixty-four percent, and a hundred and sixteen. The new winner, trained in wind, lands eighty-three percent, with a score of a hundred and eighty-two, and more landings in the middle.
 
 ## why
 
@@ -222,7 +222,7 @@ So why is it still not solved? Our first wind run had stalled too, so we recorde
 
 ## why.2
 
-And evolution itself was being fooled. Five windy flights are a lucky draw. The genome NEAT picked as best, in orange, always did much worse on a hundred fresh flights, in green. Often a better genome, in blue, was right there in the population, unnoticed. That is why this run gives the top genomes thirty extra flights, and adds new nodes less often.
+And evolution itself was being fooled. Five windy flights are a lucky draw. The genome NEAT picked as best, in orange, always did much worse on a hundred fresh flights, in green. Often a better genome, in blue, was right there in the population, unnoticed. That is why the later runs give the top genomes thirty extra flights, and add new nodes less often.
 
 ## memory
 
@@ -230,19 +230,19 @@ The steady push has a deeper cause. Hovering still in calm air, and hovering sti
 
 ## memory.2
 
-Engineers fix this with memory. A loop lets a node keep a running total of the drift, and keep pushing back for as long as the wind lasts. It is the integral part of a PID controller. So this run was allowed to evolve loops, and every network started with a few.
+Engineers fix this with memory. A loop lets a node keep a running total of the drift, and keep pushing back for as long as the wind lasts. It is the integral part of a PID controller. So we tried it twice. One run was allowed to grow loops. The final run started every network with two memory nodes, each looping to itself, and evolution could not delete them.
 
 ## compare
 
-Here are three runs, flying the same thousand flights. The first run lands sixty-nine percent of them. Fixing the search alone gives seventy-one. The run that was allowed memory lands eighty percent.
+Here are all four wind runs, flying the same thousand flights. The first run lands sixty-nine percent. A steadier search gives seventy-one. Allowing loops gives eighty. And the final run, with protected memory and fifteen hundred generations, lands eighty-five percent, with an average score of a hundred and ninety-one, the best by far.
 
 ## compare.2
 
-But look what happened to the loops. Every genome started with them, and by generation two hundred almost none were left. The winner has no memory at all. So its gain did not come from remembering, and with one run each, we can't yet say how much was luck. None of the runs survive a strong, steady wind.
+But memory was not the reason. In the loop run, evolution threw the loops away. In the final run, switching the memory off changes nothing, not a single flight. The gain came from the steadier search and the longer training. And a strong, steady wind still beats every one of them.
 
 ## outro
 
-On a hundred new windy flights, the winner lands eighty-one percent of the time, thirty-seven percent in the middle, with an average score of a hundred and seventy-four. Not solved, but closer. And it does that with no hidden nodes, and twenty-two connections.
+On a hundred new windy flights, the winner lands eighty-three percent of the time, thirty-two percent in the middle, with an average score of a hundred and eighty-two. Close, but not yet solved. And it got there with a network that, in practice, only reacts to the moment.
 
 ## outro.2
 

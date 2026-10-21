@@ -564,7 +564,7 @@ def scene_gen_fitness(ctx, name='gen_fitness', keyframes=None):
         ty = Y(run.threshold)
         d.line([px0, ty, px0 + pw, ty], fill=mix(BG, AMBER, 0.5), width=1)
         text(d, (px0 + 6, ty - 4), f'solved ({run.threshold:.0f})', 14, AMBER, anchor='lb')
-        step = 50 if G > 300 else 25
+        step = 250 if G > 1000 else (50 if G > 300 else 25)
         for g in range(0, G, step):
             text(d, (X(g), py0 + ph + 12), str(g), 15, MUTED, anchor='ma')
         text(d, (px0 + pw / 2, py0 + ph + 34), 'generation', 16, MUTED, anchor='ma')
@@ -635,7 +635,7 @@ def scene_species(ctx, name='species'):
         xcut = int(X(gp)) + 2
         img.paste(layer.crop((px0, py0, xcut, py0 + ph)), (px0, py0))
         d.rectangle([px0, py0, px0 + pw, py0 + ph], outline=PANEL, width=2)
-        step = 50 if G > 300 else 25
+        step = 250 if G > 1000 else (50 if G > 300 else 25)
         for g in range(0, G, step):
             text(d, (X(g), py0 + ph + 12), str(g), 15, MUTED, anchor='ma')
         text(d, (px0 + pw / 2, py0 + ph + 34), 'generation', 16, MUTED, anchor='ma')
@@ -1058,42 +1058,43 @@ def scene_memory(ctx, name='memory'):
 
 
 def scene_compare(ctx, name='compare'):
-    """Beats: A/B/C on the same 1,000 flights; what happened to the loops in run C."""
+    """Beats: the four wind runs on the same 1,000 flights; memory was not the reason."""
     cmp_ = _results('comparison', 'summary.json')
     res = cmp_['results']
-    rows = [('A', 'first run', MUTED), ('B', 'steadier search', BLUE), ('C', 'B + memory allowed', GREEN)]
-    snaps = runs_loops(ctx)
+    rows = [('A', 'first run', MUTED), ('B', 'steadier search', BLUE), ('C', 'B + loops allowed', VIOLET),
+            ('D', 'B + protected memory', GREEN)]
+    loops = runs_loops(ctx)
+    off = res.get('D memory off')
 
     def render(t, b):
         img = blank()
         d = ImageDraw.Draw(img)
-        heading(d, 'Three runs, the same 1,000 flights', t, 'winners compared flight by flight')
-        x0, bw = 330, 520
+        heading(d, 'Four runs, the same 1,000 flights', t, 'winners compared flight by flight')
+        x0, bw = 360, 480
         for i, (k, lab, col) in enumerate(rows):
             r = res[k]
-            a = fade(t, 0.4 + 0.5 * i)
-            y = 170 + i * 120
-            text(d, (x0 - 20, y + 4), f'{k}: {lab}', 22, FG, a, bold=True, anchor='ra')
-            w = int(bw * r['landed'] * ease((t - 0.4 - 0.5 * i) / 0.9))
-            d.rounded_rectangle([x0, y, x0 + max(w, 6), y + 34], 4, fill=mix(BG, col, a))
+            a = fade(t, 0.4 + 0.6 * i)
+            y = 150 + i * 88
+            text(d, (x0 - 20, y + 4), f'{k}: {lab}', 21, FG, a, bold=True, anchor='ra')
+            w = int(bw * r['landed'] * ease((t - 0.4 - 0.6 * i) / 0.9))
+            d.rounded_rectangle([x0, y, x0 + max(w, 6), y + 32], 4, fill=mix(BG, col, a))
             lo, hi = r['landed_ci']
-            d.line([x0 + bw * lo, y + 17, x0 + bw * hi, y + 17], fill=mix(BG, FG, a), width=2)
-            text(d, (x0 + bw + 20, y + 2), f'{100 * r["landed"]:.0f}% landed', 22, FG, a)
-            text(d, (x0 + bw + 20, y + 32), f'score {r["reward"]:.0f}', 18, MUTED, a)
-        text(d, (x0, 530), 'line on each bar: 95% confidence interval (bootstrap)', 16, MUTED, fade(t, 2.0))
+            d.line([x0 + bw * lo, y + 16, x0 + bw * hi, y + 16], fill=mix(BG, FG, a), width=2)
+            text(d, (x0 + bw + 30, y), f'{100 * r["landed"]:.0f}% landed', 21, FG, a)
+            text(d, (x0 + bw + 30, y + 28), f'score {r["reward"]:.0f}', 17, MUTED, a)
+        text(d, (x0, 506), 'line on each bar: 95% confidence interval (bootstrap)', 15, MUTED, fade(t, 3.0))
         a1 = fade(t, b.at(1))
         if a1 > 0:
-            d.rectangle([0, 560, W, H], fill=BG)
-            px, py, pw2, ph2 = 330, 590, 520, 80
-            text(d, (px - 20, py + 30), 'run C: genomes with a loop', 19, AMBER, a1, anchor='ra')
-            pts = [(px + g / 499 * pw2, py + ph2 - v * ph2) for g, v in snaps]
-            d.line(pts, fill=mix(BG, AMBER, a1), width=3)
-            for g, v in snaps:
-                text(d, (px + g / 499 * pw2, py + ph2 - v * ph2 - 22), f'{100 * v:.0f}%', 14, FG, a1, anchor='ma')
-                text(d, (px + g / 499 * pw2, py + ph2 + 8), f'gen {g}', 13, MUTED, a1, anchor='ma')
-            text(d, (px + pw2 + 20, py + 50), 'evolution dropped the memory', 19, AMBER, a1)
+            c200 = dict(loops).get(200, 0)
+            text(d, (120, 560), f'C: by generation 200, only {100 * c200:.0f}% of genomes still had a loop.', 22,
+                 AMBER, a1)
+            if off:
+                text(d, (120, 600), f'D: memory switched off: score {off["reward"]:.0f}, {100 * off["landed"]:.0f}% '
+                     'landed. Not a single flight changed.', 22, AMBER, fade(t, b.at(1) + 1.5))
+            text(d, (120, 640), 'The gain came from the steadier search and longer training, not from memory.', 22,
+                 FG, fade(t, b.at(1) + 3.0), bold=True)
         return img
-    return Scene(name, render, [11.0, 9.0])
+    return Scene(name, render, [13.0, 13.0])
 
 
 def runs_loops(ctx):

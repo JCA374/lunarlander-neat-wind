@@ -1,0 +1,12 @@
+{
+  "config": "neat-config.ini",
+  "generations": 1500,
+  "episodes": 5,
+  "workers": null,
+  "pop": null,
+  "seed": null,
+  "name": null,
+  "resume": "runs/run_wind_d/checkpoints/gen-999",
+  "reeval_top": 10,
+  "reeval_episodes": 30
+}

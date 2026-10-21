@@ -267,10 +267,10 @@
       <a href="https://jca374.github.io/lunarlander-neat/">NEAT Lunar Lander</a>, which landed in calm air with no hidden nodes.</p>
 
     <div class="stats">
-      <div class="stat"><b>81%</b><span>landing rate on 100 unseen windy episodes</span></div>
-      <div class="stat"><b>37%</b><span>landed in the middle between the flags</span></div>
-      <div class="stat"><b>174</b><span>average game score (≥ 200 counts as solved: <em>not reached</em>)</span></div>
-      <div class="stat"><b>0 + 22</b><span>hidden nodes + connections in the winner</span></div>
+      <div class="stat"><b>83%</b><span>landing rate on 100 unseen windy episodes</span></div>
+      <div class="stat"><b>32%</b><span>landed in the middle between the flags</span></div>
+      <div class="stat"><b>182</b><span>average game score (≥ 200 counts as solved: <em>not reached</em>)</span></div>
+      <div class="stat"><b>3 + 22</b><span>hidden nodes + connections in the winner (2 are protected memory nodes)</span></div>
     </div>
   </div>
 </div>
@@ -296,7 +296,7 @@
         <p><strong>The pilot is a neural network.</strong> Inputs on the left, actions on the right. Orange
           connections are positive and blue ones are negative; thicker means a larger weight. As the lander flies,
           the nodes light up with their values and the highest action score fires.</p>
-        <p>Nobody designed this network. It has no hidden nodes and 22 connections, and evolution found every one of them. It comes from run C, the best of three wind runs (sections 9 and 10).</p>
+        <p>Nobody designed this network. It has 3 hidden nodes and 22 connections, and evolution found every weight. Two of the hidden nodes are memory nodes every network was given and couldn't lose. It comes from run D, the best of four wind runs (sections 9 and 10).</p>
       </div>
     </div>
   </div>
@@ -395,21 +395,22 @@
 <section id="run-data">
   <div class="wrap">
     <h2><span class="num">7</span>The run, generation by generation</h2>
-    <p class="intro">Run C: 500 generations × 150 genomes. Every genome of every generation is logged
+    <p class="intro">Run D: 1,500 generations × 150 genomes. Every genome of every generation is logged
       (<code>data/population.csv.gz</code>), along with whole populations every 10 generations, so the run can be replayed.</p>
     <div class="split">
       <div class="shot"><img src="img/training.jpg" alt="Fitness of every genome in every generation, coloured by species, with the average and the champion's unseen score" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Every genome, every generation.</strong> Each dot is one genome, coloured by species. The
-          green line is each generation's champion on 100 unseen episodes. It passes 150 by generation 74. The best champion came from generation 197 (score 187, 86% landings) and
-          the other 300 generations never beat it. <strong>In wind, the task is still not solved.</strong></p>
+          green line is each generation's champion on 100 unseen episodes. It passes 150 by generation 124 and creeps up slowly for a thousand generations. The best champion came
+          from generation 1090 (score 199 on its 100 unseen episodes, 87% landings), then it slid back.
+          <strong>In wind, the task is still not quite solved</strong>: on fresh flights that champion scores 182–191.</p>
       </div>
     </div>
     <div class="split flip">
       <div class="shot"><img src="img/species.jpg" alt="Stacked area chart of species sizes over the generations" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Species over time.</strong> The classic NEAT plot: each band is a species and its height is
-          its share of the population. 35 species appeared over the run. They split off, grew when they
+          its share of the population. 117 species appeared over the run. They split off, grew when they
           did well, and died out when they stagnated.</p>
       </div>
     </div>
@@ -424,7 +425,7 @@
     <div class="split flip">
       <div class="shot"><img src="img/growth.jpg" alt="The champion network at a late generation, with connection and hidden-node counts over the run" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p><strong>How the network changed.</strong> Run C starts fully connected, plus a loop on each output: 36 connections, no hidden nodes. With add-node mutations made rarer, the networks stayed small (never more than 2 hidden nodes on average). The winner (generation 197) has <strong>no hidden nodes, no loops and 22 connections</strong>. Did the wind make hidden nodes necessary? <strong>No</strong>.</p>
+        <p><strong>How the network changed.</strong> Run D starts with the inputs wired to the actions plus two protected memory nodes, each with a loop to itself: 62 connections. With add-node mutations made rarer, the networks stayed small (at most 5.5 hidden nodes on average) and shed connections. The winner (generation 1090) has <strong>3 hidden nodes, 2 loops and 22 connections</strong>.</p>
       </div>
     </div>
     <div class="split">
@@ -443,20 +444,21 @@
     <div class="split flip">
       <div class="shot"><img src="img/ablation.jpg" alt="Landing rate with each connection switched off, one at a time" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p>Switch off one connection at a time and fly 40 unseen episodes (90% land with all of them). Only 6 of the 22
-          connections can go with almost no loss; this small network uses nearly everything it has:</p>
-        <ul><li><code>vy → main</code> (−10.9): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>angle → left</code> (−12.3) and <code>angle → right</code> (+7.1): tilt drives the side engines in opposite directions, keeping it upright. Without either: <strong>20%</strong> landings.</li><li><code>R leg → main</code> (+3.0): the right leg sensor feeds the main engine. Without it: <strong>30%</strong> landings.</li></ul>
+        <p>Switch off one connection at a time and fly 40 unseen episodes (88% land with all of them). 12 of the 22
+          connections can go with almost no loss, and a few carry the whole skill:</p>
+        <ul><li><code>vy → main</code> (−8.5): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>R leg → none</code> (+3.2): a leg down votes for doing nothing, so it settles. Without it: <strong>18%</strong> landings.</li><li><code>angle → right</code> (+9.5) and <code>angle → left</code> (−14.3): tilt drives the side engines in opposite directions, keeping it upright. Without them: <strong>28% / 42%</strong> landings.</li></ul>
       </div>
     </div>
-    <div class="callout"><strong>Did it need a hidden layer?</strong> No. Run C's winner has no hidden nodes at all. The
-      first wind run (A) had one, and cutting it out made no difference (75% vs 72% landings on 100 test flights).
-      In this wind, evolution keeps finding that a direct sense-to-action network is enough to get this far.</div>
+    <div class="callout"><strong>Did it need a hidden layer?</strong> No. Cut all 3 of run D's hidden nodes out,
+      memory included, and on the same 100 test flights it lands <strong>85%</strong> (score 183) instead of 83% (182).
+      The first wind run's single hidden node was just as unnecessary. In this wind, a direct sense-to-action network
+      is what evolution keeps finding.</div>
     <div class="split">
       <div class="shot"><img src="img/harder.jpg" alt="The no-wind champion and the new winner flying the same windy start, with a table of landing rates and scores" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Is the wind hard enough?</strong> The calm-air champion lands 95% (score 254) without wind but
-          only 64% (116) in it. The new winner, trained in wind, lands 81% (174) and lands in the middle 37% of the
-          time, against 21%. The wind is clearly hard: none of three 500-generation runs solved it, and it still
+          only 64% (116) in it. The new winner, trained in wind, lands 83% (182) and lands in the middle 32% of the
+          time, against 21%. The wind is clearly hard: none of four runs, the longest 1,500 generations, solved it, and it still
           didn't force a hidden layer.</p>
       </div>
     </div>
@@ -532,11 +534,10 @@
 <section id="memory">
   <div class="wrap">
     <h2><span class="num">10</span>Memory: what the network can't do yet</h2>
-    <div class="callout" id="bc-result"><strong>Result: evolution threw the memory away.</strong> Run B (a steadier
-      search) and run C (the same, plus loops) both finished on 21 October 2026. Run C's winner is the best of the
-      three runs, but it has <strong>no loops left</strong>: every genome started with four, and by generation 200
-      only 1% of the population still had one. Its gain came from somewhere else. The comparison is at the end of
-      this section.</div>
+    <div class="callout" id="bc-result"><strong>Result: memory didn't help, longer training did.</strong> Three more
+      runs finished on 21–22 October 2026. Run C was allowed loops, and evolution threw them away. Run D started every
+      network with two protected memory nodes and trained for 1,500 generations. It is the best by far, but switching
+      its memory off changes nothing. The comparison is at the end of this section.</div>
 
     <p class="intro">Finding 1 has a simple cause. Every network so far is <strong>feed-forward</strong>: each step,
       the 8 numbers flow from the inputs to the outputs and that's it. Nothing is kept for the next step. The
@@ -622,7 +623,7 @@
       </div>
     </div>
 
-    <h3>What changes in run C</h3>
+    <h3>What changes in runs C and D</h3>
     <ul>
       <li><code>feed_forward = False</code> in <code>neat-config-c.ini</code>. Add-connection mutations may now
         create loops, including a node to itself, and <code>make_net</code> builds neat-python's
@@ -633,6 +634,11 @@
       <li>Memory is wiped at the start of every flight (<code>net.reset()</code>), so one flight can't leak into the
         next and a seed still means exactly the same flight.</li>
       <li>Everything else is the same as run B, so comparing B and C isolates the effect of memory.</li>
+      <li><strong>Run D</strong> goes further: every network starts with <strong>2 memory nodes</strong>. Each sees all
+        8 inputs, feeds all 4 actions, and has a loop to itself starting at weight 1.0, the running total above. They
+        and their loops can never be deleted (<code>neat_lander/genome.py</code>). Stock neat-python would give each
+        genome's starting hidden nodes different ids, so crossover could never line them up; run D gives them the same
+        ids in every genome. It also trained for 1,500 generations instead of 500.</li>
     </ul>
 
     <h3>How we'll know whether memory helped</h3>
@@ -648,10 +654,10 @@
     </ul>
     <h3>What happened</h3>
     <div class="figure">
-      <h3>Three runs, the same 1,000 flights</h3>
+      <h3>Four runs, the same 1,000 flights</h3>
       <p class="cap">Each run's winner flew the same 1,000 unseen windy flights. Bars: landing rate; the line on
         each bar is the 95% bootstrap confidence interval. Hover for scores.</p>
-      <!-- chart:compare --><svg class="chart" viewBox="0 0 720 170" role="img" aria-label="Landing rate of the three run winners on the same 1,000 flights" font-family="system-ui, sans-serif"><line x1="200.0" x2="200.0" y1="6" y2="148" stroke="var(--line)"/><text x="200.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">0%</text><line x1="295.0" x2="295.0" y1="6" y2="148" stroke="var(--line)"/><text x="295.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">25%</text><line x1="390.0" x2="390.0" y1="6" y2="148" stroke="var(--line)"/><text x="390.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">50%</text><line x1="485.0" x2="485.0" y1="6" y2="148" stroke="var(--line)"/><text x="485.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">75%</text><line x1="580.0" x2="580.0" y1="6" y2="148" stroke="var(--line)"/><text x="580.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">100%</text><text x="190.0" y="31.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">A: first wind run</text><path d="M200.0,16.0 H458.2 Q462.2,16.0 462.2,20.0 V36.0 Q462.2,40.0 458.2,40.0 H200.0 Z" fill="var(--muted)"><title>run A: 69% landed (95% CI 66-72%), average score 160, 30% in the middle</title></path><line x1="451.2" x2="472.8" y1="28" y2="28" stroke="var(--text)" stroke-width="2"/><text x="484.8" y="33.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">69% landed  ·  score 160</text><text x="190.0" y="77.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">B: steadier search</text><path d="M200.0,62.0 H464.3 Q468.3,62.0 468.3,66.0 V82.0 Q468.3,86.0 464.3,86.0 H200.0 Z" fill="var(--muted)"><title>run B: 71% landed (95% CI 68-73%), average score 169, 36% in the middle</title></path><line x1="457.6" x2="478.9" y1="74" y2="74" stroke="var(--text)" stroke-width="2"/><text x="490.9" y="79.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">71% landed  ·  score 169</text><text x="190.0" y="123.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">C: B + memory allowed</text><path d="M200.0,108.0 H499.6 Q503.6,108.0 503.6,112.0 V128.0 Q503.6,132.0 499.6,132.0 H200.0 Z" fill="var(--c3)"><title>run C: 80% landed (95% CI 77-82%), average score 171, 32% in the middle</title></path><line x1="494.1" x2="512.7" y1="120" y2="120" stroke="var(--text)" stroke-width="2"/><text x="524.7" y="125.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">80% landed  ·  score 171</text></svg><!-- /chart:compare -->
+      <!-- chart:compare --><svg class="chart" viewBox="0 0 720 216" role="img" aria-label="Landing rate of the four run winners on the same 1,000 flights" font-family="system-ui, sans-serif"><line x1="200.0" x2="200.0" y1="6" y2="194" stroke="var(--line)"/><text x="200.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">0%</text><line x1="295.0" x2="295.0" y1="6" y2="194" stroke="var(--line)"/><text x="295.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">25%</text><line x1="390.0" x2="390.0" y1="6" y2="194" stroke="var(--line)"/><text x="390.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">50%</text><line x1="485.0" x2="485.0" y1="6" y2="194" stroke="var(--line)"/><text x="485.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">75%</text><line x1="580.0" x2="580.0" y1="6" y2="194" stroke="var(--line)"/><text x="580.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">100%</text><text x="190.0" y="31.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">A: first wind run</text><path d="M200.0,16.0 H458.2 Q462.2,16.0 462.2,20.0 V36.0 Q462.2,40.0 458.2,40.0 H200.0 Z" fill="var(--muted)"><title>run A: 69% landed (95% CI 66-72%), average score 160, 30% in the middle</title></path><line x1="451.2" x2="472.8" y1="28" y2="28" stroke="var(--text)" stroke-width="2"/><text x="484.8" y="33.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">69% landed  ·  score 160</text><text x="190.0" y="77.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">B: steadier search</text><path d="M200.0,62.0 H464.3 Q468.3,62.0 468.3,66.0 V82.0 Q468.3,86.0 464.3,86.0 H200.0 Z" fill="var(--muted)"><title>run B: 71% landed (95% CI 68-73%), average score 169, 36% in the middle</title></path><line x1="457.6" x2="478.9" y1="74" y2="74" stroke="var(--text)" stroke-width="2"/><text x="490.9" y="79.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">71% landed  ·  score 169</text><text x="190.0" y="123.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">C: B + loops allowed</text><path d="M200.0,108.0 H499.6 Q503.6,108.0 503.6,112.0 V128.0 Q503.6,132.0 499.6,132.0 H200.0 Z" fill="var(--muted)"><title>run C: 80% landed (95% CI 77-82%), average score 171, 32% in the middle</title></path><line x1="494.1" x2="512.7" y1="120" y2="120" stroke="var(--text)" stroke-width="2"/><text x="524.7" y="125.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">80% landed  ·  score 171</text><text x="190.0" y="169.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">D: B + protected memory</text><path d="M200.0,154.0 H517.9 Q521.9,154.0 521.9,158.0 V174.0 Q521.9,178.0 517.9,178.0 H200.0 Z" fill="var(--c3)"><title>run D: 85% landed (95% CI 82-87%), average score 191, 34% in the middle</title></path><line x1="513.1" x2="530.2" y1="166" y2="166" stroke="var(--text)" stroke-width="2"/><text x="542.2" y="171.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">85% landed  ·  score 191</text></svg><!-- /chart:compare -->
     </div>
     <div class="figure">
       <h3>Run C: how many genomes still had a loop</h3>
@@ -663,19 +669,24 @@
         about 100 on unseen flights in its last 300 generations, against about 50 for run A, and the gap between lucky
         training scores and real ones shrank from about 90 points to about 25. But its best winner (175) was no better
         than A's (182).</li>
-      <li><strong>Run C lands most often</strong>: 80% of the 1,000 flights against 69% for A (+11 points,
-        95% CI +8 to +14) and 71% for B (+9, CI +6 to +13). Its average score is 171, against 160 and 169.</li>
-      <li><strong>But not because it remembers.</strong> Its winner has no loops, so it is a plain reflex like the
-        others. With one run per setup we can't tell whether C's edge came from the loops it had early on, or from
-        luck between runs.</li>
-      <li><strong>The steady wind still wins.</strong> In all three runs, flights with a strong steady push failed
-        every time.</li>
+      <li><strong>Run C lands more often than A and B</strong> (80% vs 69% and 71%) but its winner has no loops left:
+        by generation 200 only 1% of its genomes still had one. With one run per setup we can't tell whether C's edge
+        came from its early loops or from luck between runs.</li>
+      <li><strong>Run D is the best by far</strong>: 85% landed and an average score of 191 on the 1,000 flights
+        (95% CI 185 to 197), +20 over C (CI +12 to +29) and +31 over A. It kept improving for over 1,000 generations,
+        where A, B and C stalled after 100–200.</li>
+      <li><strong>But not because it remembers.</strong> Switch every loop in D's winner off and it flies all 1,000
+        flights exactly the same. One memory node only nudges "do nothing"; the other loops around without reaching any
+        action. The gain came from the steadier search plus much longer training.</li>
+      <li><strong>The steady wind still wins.</strong> D fails far less in light and moderate wind (6% near calm,
+        against 14–24% for the others), but in all four runs a strong steady push failed every time.</li>
     </ul>
-    <p>Why would evolution drop memory that should help? A loop starts with a random weight, so at first it mostly
-      adds noise, and deleting a connection is one mutation away. To use memory, a genome needs several weights tuned
-      together across time before it pays off. Without protection, the simpler reflex networks outscore them first.
-      Ideas to try next: start with a hidden node with a loop and protect it (no deletion), train in steadier wind
-      first and add gusts later (a curriculum), or give the network its previous action as an extra input.</p>
+    <p>Why doesn't evolution use memory that should help? A loop's weight starts random (or, in run D, at 1.0) and
+      mutation moves it freely, so at first memory mostly adds noise. To pay off, a genome needs several weights tuned
+      together across time, and the simpler reflex networks outscore it first. Run D's loop weights ended at −0.35
+      and +1.65: one flips sign every step instead of adding up. Ideas to try next: freeze the loop weight at 1.0 so the
+      node can only integrate, train in steady wind first and add gusts later (a curriculum), or give the network
+      its previous action as an extra input.</p>
   </div>
 </section>
 
