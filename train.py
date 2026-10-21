@@ -59,6 +59,9 @@ def main():
     ap.add_argument('--seed', type=int, default=None, help='random seed for NEAT itself')
     ap.add_argument('--name', default=None, help='run directory name')
     ap.add_argument('--resume', default=None, help='checkpoint file to continue from')
+    ap.add_argument('--reeval-top', type=int, default=0,
+                    help='re-fly the best N genomes of each generation on more episodes (0 = off)')
+    ap.add_argument('--reeval-episodes', type=int, default=30, help='extra episodes for --reeval-top')
     args = ap.parse_args()
 
     pop, config, run_dir = build_population(args)
@@ -69,7 +72,8 @@ def main():
     with open(runs.path(run_dir, 'train_args.json'), 'w') as fh:
         json.dump(vars(args), fh, indent=2)
 
-    evaluator = Evaluator(config, episodes=args.episodes, workers=args.workers)
+    evaluator = Evaluator(config, episodes=args.episodes, workers=args.workers,
+                          reeval_top=args.reeval_top, reeval_episodes=args.reeval_episodes)
     recorder = EvolutionRecorder(run_dir, config, evaluator, pop.reproduction, args.generations)
     if args.resume:
         recorder.resume_from(start)

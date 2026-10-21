@@ -49,7 +49,19 @@ def centre_bonus(landed, x):
 
 
 def make_net(genome, config):
-    return neat.nn.FeedForwardNetwork.create(genome, config)
+    """Feed-forward unless the config allows loops (feed_forward = False): then a recurrent network,
+    where every connection reads the value its source node had one step earlier, so the network can
+    carry information from step to step (memory)."""
+    if config.genome_config.feed_forward:
+        return neat.nn.FeedForwardNetwork.create(genome, config)
+    return neat.nn.RecurrentNetwork.create(genome, config)
+
+
+def node_values(net):
+    """Every node's current value (the recurrent network keeps two buffers and flips between them)."""
+    if isinstance(net.values, list):
+        return dict(net.values[1 - net.active])
+    return dict(net.values)
 
 
 def choose_action(net, obs):
@@ -69,6 +81,8 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
     if own_env:
         env = make_env('rgb_array' if frames else None)
     seed_wind(env, seed)        # before reset: reset already takes one step in the wind
+    if hasattr(net, 'reset'):
+        net.reset()             # a recurrent network starts every flight with a blank memory
     obs, _ = env.reset(seed=int(seed))
     out = {'seed': int(seed), 'reward': 0.0, 'frames': [], 'path': [], 'states': [],
            'actions': [], 'values': [], 'wind': []}
@@ -86,7 +100,7 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
         if trace:
             out['states'].append(np.array(obs))
             out['actions'].append(action)
-            out['values'].append(dict(net.values))
+            out['values'].append(node_values(net))
         obs, reward, terminated, truncated, _ = env.step(action)
         out['reward'] += float(reward)
         out['steps'] = out.get('steps', 0) + 1

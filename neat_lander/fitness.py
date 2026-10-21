@@ -23,6 +23,12 @@ def training_seeds(generation, episodes):
     return [int(s) for s in rng.integers(0, TRAIN_SEED_MAX, episodes)]
 
 
+def reeval_seeds(generation, episodes):
+    """Extra training seeds for re-flying a generation's top genomes (a separate stream, still < 1e9)."""
+    rng = np.random.default_rng([TRAIN_SEED_BASE, generation, 1])
+    return [int(s) for s in rng.integers(0, TRAIN_SEED_MAX, episodes)]
+
+
 def fly(genome, config, seeds):
     """Fly a genome on each seed; returns a summary dict (the mean reward is the fitness)."""
     net = make_net(genome, config)
@@ -72,8 +78,12 @@ class Evaluator(BaseReporter):
     keeps each genome's summary in `self.results` for the logger.
     """
 
-    def __init__(self, config, episodes=5, workers=None):
+    def __init__(self, config, episodes=5, workers=None, reeval_top=0, reeval_episodes=0):
         self.episodes = episodes
+        # Five windy episodes rank the population well overall but pick lucky genomes at the top, so
+        # the best `reeval_top` genomes fly `reeval_episodes` more before elites and species are chosen
+        self.reeval_top = reeval_top
+        self.reeval_episodes = reeval_episodes
         self.generation = 0
         self.results = {}
         self.pool = mp.Pool(workers or mp.cpu_count(), initializer=_init_worker, initargs=(config,))
@@ -88,6 +98,17 @@ class Evaluator(BaseReporter):
         for (gid, genome), s in zip(genomes, summaries):
             genome.fitness = s['fitness']
             self.results[gid] = s
+        if self.reeval_top and self.reeval_episodes:
+            top = sorted(genomes, key=lambda kv: -kv[1].fitness)[:self.reeval_top]
+            extra = self.pool.map(_fly_job, [(g, reeval_seeds(self.generation, self.reeval_episodes))
+                                             for _, g in top])
+            n0, n1 = self.episodes, self.reeval_episodes
+            for (gid, genome), s in zip(top, extra):
+                merged = {k: (self.results[gid][k] * n0 + s[k] * n1) / (n0 + n1)
+                          for k in s if k not in ('std', 'abs_x')}
+                merged.update(std=s['std'], abs_x=s['abs_x'])
+                genome.fitness = merged['fitness']
+                self.results[gid] = merged
 
     def validate(self, genome, seeds=VALIDATION_SEEDS):
         """Fly one genome on many seeds in parallel; returns the summary."""
@@ -104,7 +125,8 @@ class Evaluator(BaseReporter):
 
     def __getstate__(self):
         # neat checkpoints pickle the species set, which holds the reporters; skip the pool
-        return {'episodes': self.episodes, 'generation': self.generation, 'results': {}, 'pool': None}
+        return {'episodes': self.episodes, 'generation': self.generation, 'results': {}, 'pool': None,
+                'reeval_top': self.reeval_top, 'reeval_episodes': self.reeval_episodes}
 
     def close(self):
         self.pool.close()
