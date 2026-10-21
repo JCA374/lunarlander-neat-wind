@@ -9,6 +9,9 @@ With num_hidden = 0 (runs A, B, C) it behaves exactly like DefaultGenome. With n
   1.0: a running total (an integrator) from generation 0. Evolution tunes all of it from there.
 - Memory nodes are never deleted, and their loops are never deleted or disabled. Everything else
   evolves as usual.
+
+FrozenMemoryGenome (run E) also keeps every memory loop at exactly LOOP_WEIGHT, so each memory node can only
+keep a running total of what it is fed. Evolution chooses what to feed it and how to use it.
 """
 
 from itertools import count
@@ -67,3 +70,11 @@ class MemoryGenome(neat.DefaultGenome):
         keys = [k for k in self.connections if k not in protected]
         if keys:
             del self.connections[choice(keys)]
+
+
+class FrozenMemoryGenome(MemoryGenome):
+    def mutate(self, config):
+        super().mutate(config)
+        for k in self._memory:
+            if (k, k) in self.connections:
+                self.connections[(k, k)].weight = LOOP_WEIGHT
