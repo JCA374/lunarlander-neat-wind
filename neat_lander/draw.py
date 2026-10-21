@@ -2,6 +2,7 @@
 
 Layout: inputs on the left, actions on the right, each hidden node one column further right than
 the deepest node feeding it. Orange connections are positive, blue negative; thickness is |weight|.
+Recurrent genomes: a loop to itself is a ring above the node, a backward connection is a curve below.
 """
 
 import os
@@ -108,7 +109,19 @@ def draw_network(img, genome, config, box, values=None, action=None, labels=True
         if (src, dst) in highlight:
             colr = FG
         width = max(1, int(1 + 4 * strength))
-        d.line([pos[src], pos[dst]], fill=mix(bg, colr, a), width=width)
+        (sx, sy), (tx, ty) = pos[src], pos[dst]
+        if src == dst:                               # a loop to itself (memory): a ring above the node
+            lr = r + 5
+            d.ellipse([sx - lr * 0.8, sy - r - 2 * lr, sx + lr * 0.8, sy - r + 2], outline=mix(bg, colr, a),
+                      width=width)
+        elif tx <= sx:                               # a connection running backwards (recurrent): a curve
+            bow = 40 + 0.15 * abs(sx - tx)
+            mx, my = (sx + tx) / 2, max(sy, ty) + bow
+            pts = [((1 - u) ** 2 * sx + 2 * (1 - u) * u * mx + u * u * tx,
+                    (1 - u) ** 2 * sy + 2 * (1 - u) * u * my + u * u * ty) for u in [i / 24 for i in range(25)]]
+            d.line(pts, fill=mix(bg, colr, a), width=width, joint='curve')
+        else:
+            d.line([pos[src], pos[dst]], fill=mix(bg, colr, a), width=width)
 
     gc = config.genome_config
     for k, (x, y) in pos.items():
