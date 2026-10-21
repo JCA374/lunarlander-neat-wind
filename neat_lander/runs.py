@@ -24,6 +24,8 @@ from datetime import datetime
 
 import neat
 
+from .genome import MemoryGenome
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNS_DIR = os.path.join(ROOT, 'runs')
 SUBDIRS = ('data', 'genomes', 'populations', 'checkpoints')
@@ -54,9 +56,12 @@ def latest_run():
 
 
 def load_config(path):
+    """A neat Config. A [MemoryGenome] section (run D) selects MemoryGenome, [DefaultGenome] the stock one."""
     if os.path.isdir(path):
         path = os.path.join(path, 'config.ini')
-    return neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+    with open(path) as fh:
+        genome = MemoryGenome if '[MemoryGenome]' in fh.read() else neat.DefaultGenome
+    return neat.Config(genome, neat.DefaultReproduction,
                        neat.DefaultSpeciesSet, neat.DefaultStagnation, path)
 
 
