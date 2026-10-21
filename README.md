@@ -18,16 +18,27 @@ enough for evolution to *need* hidden structure:
 
 **Explainer video and pictures:** https://jca374.github.io/lunarlander-neat-wind/
 
-## Result: hard enough, but no hidden layer needed
+## Results: three runs, none solved, no hidden layer needed
 
-The published run (`runs/run_wind_20261020`, 500 generations) **did not solve** the windy task. The best champion,
-from generation 81, scores 182 on the 100 validation episodes (77% landings, 38% in the middle). On 100 test
-episodes it lands 72%, 36% in the middle, with an average game score of 166. The calm-air champion from
-lunarlander-neat gets 95% / 87% / 254 without wind, but only 64% / 21% / 116 in the same wind.
+| Run | Config | What changed | Winner on 1,000 analysis flights |
+|---|---|---|---|
+| A `runs/run_wind_20261020` | `neat-config.ini` | classic NEAT | 69% landed, score 160, 1 hidden node |
+| B `runs/run_wind_b` | `neat-config-b.ini` + `--reeval-top 10` | top 10 re-flown on 30 extra episodes; fewer structural mutations; `max_stagnation` 40 | 71% landed, score 169, 2 hidden nodes |
+| C `runs/run_wind_c` | `neat-config-c.ini` + `--reeval-top 10` | B + `feed_forward = False` (loops, memory) | **80% landed, score 171**, 0 hidden nodes, 0 loops |
 
-The winner has **one hidden node and 26 connections**, but it doesn't need the node: with it cut out, the network
-lands 75% with a score of 161 on the same test episodes. Later generations grew to 30+ hidden nodes and flew worse
-on unseen episodes. So the wind makes the task much harder, but it doesn't force NEAT to use a hidden layer.
+None reached an average game score of 200. The video and page use run C's winner. What we learned
+(`experiments/analyze_flights.py`, `experiments/compare_runs.py`, and the page's "Why it fails" and "Memory" sections):
+
+- **A steady push from one side is what kills the lander.** Gusts are survivable; a flight with a strong steady
+  push failed every time in all three runs. A network that only reacts to the current state sees "hovering in calm
+  air" and "hovering against a steady push" as the same input, but they need different actions.
+- **Five windy episodes make selection lucky.** In run A the top genome by 5 episodes was much worse on 100, and
+  better genomes went unnoticed. Re-flying the top 10 (runs B and C) cut the luck gap from about 90 to about 25
+  points and doubled the typical champion's score, but didn't raise the best one.
+- **Evolution dropped the memory.** Run C started every genome with 4 loops; by generation 200 only 1% had any,
+  and the winner has none. Its edge over B (+9 landings in 100, CI +6 to +13) is not from remembering; with one run
+  per setup it may be luck between runs.
+- **More generations don't help.** All three runs plateaued after generation 100-200.
 
 ## Quick start
 

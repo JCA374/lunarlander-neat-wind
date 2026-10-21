@@ -267,10 +267,10 @@
       <a href="https://jca374.github.io/lunarlander-neat/">NEAT Lunar Lander</a>, which landed in calm air with no hidden nodes.</p>
 
     <div class="stats">
-      <div class="stat"><b>72%</b><span>landing rate on 100 unseen windy episodes</span></div>
-      <div class="stat"><b>36%</b><span>landed in the middle between the flags</span></div>
-      <div class="stat"><b>166</b><span>average game score (≥ 200 counts as solved: <em>not reached</em>)</span></div>
-      <div class="stat"><b>1 + 26</b><span>hidden nodes + connections in the winner</span></div>
+      <div class="stat"><b>81%</b><span>landing rate on 100 unseen windy episodes</span></div>
+      <div class="stat"><b>37%</b><span>landed in the middle between the flags</span></div>
+      <div class="stat"><b>174</b><span>average game score (≥ 200 counts as solved: <em>not reached</em>)</span></div>
+      <div class="stat"><b>0 + 22</b><span>hidden nodes + connections in the winner</span></div>
     </div>
   </div>
 </div>
@@ -296,7 +296,7 @@
         <p><strong>The pilot is a neural network.</strong> Inputs on the left, actions on the right. Orange
           connections are positive and blue ones are negative; thicker means a larger weight. As the lander flies,
           the nodes light up with their values and the highest action score fires.</p>
-        <p>Nobody designed this network. It has one hidden node and 26 connections, and evolution found every one of them.</p>
+        <p>Nobody designed this network. It has no hidden nodes and 22 connections, and evolution found every one of them. It comes from run C, the best of three wind runs (sections 9 and 10).</p>
       </div>
     </div>
   </div>
@@ -395,22 +395,21 @@
 <section id="run-data">
   <div class="wrap">
     <h2><span class="num">7</span>The run, generation by generation</h2>
-    <p class="intro">500 generations × 150 genomes. Every genome of every generation is logged
+    <p class="intro">Run C: 500 generations × 150 genomes. Every genome of every generation is logged
       (<code>data/population.csv.gz</code>), along with whole populations every 10 generations, so the run can be replayed.</p>
     <div class="split">
       <div class="shot"><img src="img/training.jpg" alt="Fitness of every genome in every generation, coloured by species, with the average and the champion's unseen score" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Every genome, every generation.</strong> Each dot is one genome, coloured by species. The
-          green line is each generation's champion on 100 unseen episodes. It climbs to 150 by generation 42, then
-          stalls. The best champion came from generation 81 (score 182, 77% landings) and the other 400 generations
-          never beat it. <strong>In wind, the task was not solved.</strong></p>
+          green line is each generation's champion on 100 unseen episodes. It passes 150 by generation 74. The best champion came from generation 197 (score 187, 86% landings) and
+          the other 300 generations never beat it. <strong>In wind, the task is still not solved.</strong></p>
       </div>
     </div>
     <div class="split flip">
       <div class="shot"><img src="img/species.jpg" alt="Stacked area chart of species sizes over the generations" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Species over time.</strong> The classic NEAT plot: each band is a species and its height is
-          its share of the population. 46 species appeared over the run. They split off, grew when they
+          its share of the population. 35 species appeared over the run. They split off, grew when they
           did well, and died out when they stagnated.</p>
       </div>
     </div>
@@ -425,7 +424,7 @@
     <div class="split flip">
       <div class="shot"><img src="img/growth.jpg" alt="The champion network at a late generation, with connection and hidden-node counts over the run" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p><strong>How the network changed.</strong> It starts fully connected: 32 connections, no hidden nodes. The winner (generation 81) has <strong>one hidden node and 26 connections</strong>. After that the population kept growing, to 30+ hidden nodes and 80 connections, and those networks did <em>worse</em> on unseen episodes. Did the wind make hidden nodes necessary? <strong>No</strong>: see below.</p>
+        <p><strong>How the network changed.</strong> Run C starts fully connected, plus a loop on each output: 36 connections, no hidden nodes. With add-node mutations made rarer, the networks stayed small (never more than 2 hidden nodes on average). The winner (generation 197) has <strong>no hidden nodes, no loops and 22 connections</strong>. Did the wind make hidden nodes necessary? <strong>No</strong>.</p>
       </div>
     </div>
     <div class="split">
@@ -444,21 +443,21 @@
     <div class="split flip">
       <div class="shot"><img src="img/ablation.jpg" alt="Landing rate with each connection switched off, one at a time" loading="lazy" width="1280" height="720"></div>
       <div>
-        <p>Switch off one connection at a time and fly 40 unseen episodes (60% land with all of them). 19 of the 26
-          connections can go with almost no loss, and a few carry the whole skill:</p>
-        <ul><li><code>vy → main</code> (−12.0): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>angle → left</code> (−11.1): tilt drives the left engine: stays upright. Without it: <strong>15%</strong> landings.</li><li><code>L leg → right</code> (−3.9): a leg down holds back the right engine. Without it: <strong>32%</strong> landings.</li></ul>
+        <p>Switch off one connection at a time and fly 40 unseen episodes (90% land with all of them). Only 6 of the 22
+          connections can go with almost no loss; this small network uses nearly everything it has:</p>
+        <ul><li><code>vy → main</code> (−10.9): falling fast drives the main engine: the brake. Without it: <strong>0%</strong> landings.</li><li><code>angle → left</code> (−12.3) and <code>angle → right</code> (+7.1): tilt drives the side engines in opposite directions, keeping it upright. Without either: <strong>20%</strong> landings.</li><li><code>R leg → main</code> (+3.0): the right leg sensor feeds the main engine. Without it: <strong>30%</strong> landings.</li></ul>
       </div>
     </div>
-    <div class="callout"><strong>Did it need a hidden layer?</strong> Not really. Cut the winner's one hidden node
-      out completely and, on the same 100 test flights, it lands <strong>75%</strong> (score 161) instead of 72% (166).
-      Evolution added the node, but the skill doesn't depend on it.</div>
+    <div class="callout"><strong>Did it need a hidden layer?</strong> No. Run C's winner has no hidden nodes at all. The
+      first wind run (A) had one, and cutting it out made no difference (75% vs 72% landings on 100 test flights).
+      In this wind, evolution keeps finding that a direct sense-to-action network is enough to get this far.</div>
     <div class="split">
       <div class="shot"><img src="img/harder.jpg" alt="The no-wind champion and the new winner flying the same windy start, with a table of landing rates and scores" loading="lazy" width="1280" height="720"></div>
       <div>
         <p><strong>Is the wind hard enough?</strong> The calm-air champion lands 95% (score 254) without wind but
-          only 64% (116) in it. The new winner, trained in wind, lands 72% (166) and lands in the middle 36% of the
-          time, against 21%. The wind is clearly hard: too hard to solve in 500 generations. It still didn't force
-          a hidden layer.</p>
+          only 64% (116) in it. The new winner, trained in wind, lands 81% (174) and lands in the middle 37% of the
+          time, against 21%. The wind is clearly hard: none of three 500-generation runs solved it, and it still
+          didn't force a hidden layer.</p>
       </div>
     </div>
   </div>
@@ -467,7 +466,7 @@
 <section id="why">
   <div class="wrap">
     <h2><span class="num">9</span>Why it fails</h2>
-    <p class="intro">To find out why 500 generations didn't solve the windy task, the winner flew 1,000 more windy flights
+    <p class="intro">To find out why the first wind run (A) didn't solve the task, its winner flew 1,000 more windy flights
       it had never seen, and seven whole populations from the run were re-flown on 100 episodes per genome.
       Four findings stand out. The full report, with the method and every number, is in
       <code>results/failure_analysis/run_wind_20261020/</code>.</p>
@@ -533,10 +532,11 @@
 <section id="memory">
   <div class="wrap">
     <h2><span class="num">10</span>Memory: what the network can't do yet</h2>
-    <div class="status" id="bc-status"><strong>Training now:</strong> two new runs started on 21 October 2026.
-      <strong>Run B</strong> fixes the search (more flights for the top genomes, fewer structural mutations, more
-      patience for species). <strong>Run C</strong> does the same and also lets the network <em>remember</em>.
-      Their results will appear here.</div>
+    <div class="callout" id="bc-result"><strong>Result: evolution threw the memory away.</strong> Run B (a steadier
+      search) and run C (the same, plus loops) both finished on 21 October 2026. Run C's winner is the best of the
+      three runs, but it has <strong>no loops left</strong>: every genome started with four, and by generation 200
+      only 1% of the population still had one. Its gain came from somewhere else. The comparison is at the end of
+      this section.</div>
 
     <p class="intro">Finding 1 has a simple cause. Every network so far is <strong>feed-forward</strong>: each step,
       the 8 numbers flow from the inputs to the outputs and that's it. Nothing is kept for the next step. The
@@ -646,10 +646,36 @@
         drops, the network really uses what it remembers. This is the same test that showed run A's hidden node
         was not needed.</li>
     </ul>
-    <p>Memory isn't free. Weights that act across time are harder for evolution to tune, a loop with too much
-      gain makes the lander oscillate, and loops are harder to draw and read. If C still fails, that's useful
-      too: it would mean the search, not the network, is the bottleneck, and run B will tell us how far fixing
-      the search alone gets.</p>
+    <h3>What happened</h3>
+    <div class="figure">
+      <h3>Three runs, the same 1,000 flights</h3>
+      <p class="cap">Each run's winner flew the same 1,000 unseen windy flights. Bars: landing rate; the line on
+        each bar is the 95% bootstrap confidence interval. Hover for scores.</p>
+      <!-- chart:compare --><svg class="chart" viewBox="0 0 720 170" role="img" aria-label="Landing rate of the three run winners on the same 1,000 flights" font-family="system-ui, sans-serif"><line x1="200.0" x2="200.0" y1="6" y2="148" stroke="var(--line)"/><text x="200.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">0%</text><line x1="295.0" x2="295.0" y1="6" y2="148" stroke="var(--line)"/><text x="295.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">25%</text><line x1="390.0" x2="390.0" y1="6" y2="148" stroke="var(--line)"/><text x="390.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">50%</text><line x1="485.0" x2="485.0" y1="6" y2="148" stroke="var(--line)"/><text x="485.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">75%</text><line x1="580.0" x2="580.0" y1="6" y2="148" stroke="var(--line)"/><text x="580.0" y="162.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">100%</text><text x="190.0" y="31.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">A: first wind run</text><path d="M200.0,16.0 H458.2 Q462.2,16.0 462.2,20.0 V36.0 Q462.2,40.0 458.2,40.0 H200.0 Z" fill="var(--muted)"><title>run A: 69% landed (95% CI 66-72%), average score 160, 30% in the middle</title></path><line x1="451.2" x2="472.8" y1="28" y2="28" stroke="var(--text)" stroke-width="2"/><text x="484.8" y="33.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">69% landed  ·  score 160</text><text x="190.0" y="77.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">B: steadier search</text><path d="M200.0,62.0 H464.3 Q468.3,62.0 468.3,66.0 V82.0 Q468.3,86.0 464.3,86.0 H200.0 Z" fill="var(--muted)"><title>run B: 71% landed (95% CI 68-73%), average score 169, 36% in the middle</title></path><line x1="457.6" x2="478.9" y1="74" y2="74" stroke="var(--text)" stroke-width="2"/><text x="490.9" y="79.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">71% landed  ·  score 169</text><text x="190.0" y="123.0" font-size="13" fill="var(--text)" text-anchor="end" font-weight="normal">C: B + memory allowed</text><path d="M200.0,108.0 H499.6 Q503.6,108.0 503.6,112.0 V128.0 Q503.6,132.0 499.6,132.0 H200.0 Z" fill="var(--c3)"><title>run C: 80% landed (95% CI 77-82%), average score 171, 32% in the middle</title></path><line x1="494.1" x2="512.7" y1="120" y2="120" stroke="var(--text)" stroke-width="2"/><text x="524.7" y="125.0" font-size="13" fill="var(--text)" text-anchor="start" font-weight="normal">80% landed  ·  score 171</text></svg><!-- /chart:compare -->
+    </div>
+    <div class="figure">
+      <h3>Run C: how many genomes still had a loop</h3>
+      <p class="cap">Share of each population snapshot with at least one loop (a connection that closes a cycle).</p>
+      <!-- chart:loops --><svg class="chart" viewBox="0 0 720 224" role="img" aria-label="Share of run C genomes with a loop, by generation" font-family="system-ui, sans-serif"><line x1="48" x2="648" y1="170.0" y2="170.0" stroke="var(--line)"/><text x="40.0" y="174.0" font-size="12" fill="var(--muted)" text-anchor="end" font-weight="normal">0%</text><line x1="48" x2="648" y1="100.0" y2="100.0" stroke="var(--line)"/><text x="40.0" y="104.0" font-size="12" fill="var(--muted)" text-anchor="end" font-weight="normal">50%</text><line x1="48" x2="648" y1="30.0" y2="30.0" stroke="var(--line)"/><text x="40.0" y="34.0" font-size="12" fill="var(--muted)" text-anchor="end" font-weight="normal">100%</text><path d="M48.0,30.0 L108.1,30.0 L168.2,82.3 L228.4,128.0 L288.5,169.1 L348.6,157.8 L408.7,125.5 L468.8,135.7 L529.0,127.1 L589.1,151.1 L648.0,165.4" fill="none" stroke="var(--c1)" stroke-width="2"/><g class="mark"><circle cx="48.0" cy="30.0" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="48.0" cy="30.0" r="12" fill="transparent"/><title>generation 0: 100% of genomes have a loop</title></g><text x="48.0" y="18.0" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">100%</text><text x="48.0" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">0</text><g class="mark"><circle cx="108.1" cy="30.0" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="108.1" cy="30.0" r="12" fill="transparent"/><title>generation 50: 100% of genomes have a loop</title></g><text x="108.1" y="18.0" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">100%</text><text x="108.1" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">50</text><g class="mark"><circle cx="168.2" cy="82.3" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="168.2" cy="82.3" r="12" fill="transparent"/><title>generation 100: 63% of genomes have a loop</title></g><text x="168.2" y="70.3" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">63%</text><text x="168.2" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">100</text><g class="mark"><circle cx="228.4" cy="128.0" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="228.4" cy="128.0" r="12" fill="transparent"/><title>generation 150: 30% of genomes have a loop</title></g><text x="228.4" y="116.0" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">30%</text><text x="228.4" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">150</text><g class="mark"><circle cx="288.5" cy="169.1" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="288.5" cy="169.1" r="12" fill="transparent"/><title>generation 200: 1% of genomes have a loop</title></g><text x="288.5" y="157.1" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">1%</text><text x="288.5" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">200</text><g class="mark"><circle cx="348.6" cy="157.8" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="348.6" cy="157.8" r="12" fill="transparent"/><title>generation 250: 9% of genomes have a loop</title></g><text x="348.6" y="145.8" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">9%</text><text x="348.6" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">250</text><g class="mark"><circle cx="408.7" cy="125.5" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="408.7" cy="125.5" r="12" fill="transparent"/><title>generation 300: 32% of genomes have a loop</title></g><text x="408.7" y="113.5" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">32%</text><text x="408.7" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">300</text><g class="mark"><circle cx="468.8" cy="135.7" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="468.8" cy="135.7" r="12" fill="transparent"/><title>generation 350: 25% of genomes have a loop</title></g><text x="468.8" y="123.7" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">25%</text><text x="468.8" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">350</text><g class="mark"><circle cx="529.0" cy="127.1" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="529.0" cy="127.1" r="12" fill="transparent"/><title>generation 400: 31% of genomes have a loop</title></g><text x="529.0" y="115.1" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">31%</text><text x="529.0" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">400</text><g class="mark"><circle cx="589.1" cy="151.1" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="589.1" cy="151.1" r="12" fill="transparent"/><title>generation 450: 14% of genomes have a loop</title></g><text x="589.1" y="139.1" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">14%</text><text x="589.1" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">450</text><g class="mark"><circle cx="648.0" cy="165.4" r="5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle cx="648.0" cy="165.4" r="12" fill="transparent"/><title>generation 499: 3% of genomes have a loop</title></g><text x="648.0" y="153.4" font-size="12" fill="var(--text)" text-anchor="middle" font-weight="normal">3%</text><text x="648.0" y="190.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">499</text><text x="348.0" y="208.0" font-size="12" fill="var(--muted)" text-anchor="middle" font-weight="normal">generation</text></svg><!-- /chart:loops -->
+    </div>
+    <ul>
+      <li><strong>Fixing the search helped the population, not the peak.</strong> Run B's typical champion scored
+        about 100 on unseen flights in its last 300 generations, against about 50 for run A, and the gap between lucky
+        training scores and real ones shrank from about 90 points to about 25. But its best winner (175) was no better
+        than A's (182).</li>
+      <li><strong>Run C lands most often</strong>: 80% of the 1,000 flights against 69% for A (+11 points,
+        95% CI +8 to +14) and 71% for B (+9, CI +6 to +13). Its average score is 171, against 160 and 169.</li>
+      <li><strong>But not because it remembers.</strong> Its winner has no loops, so it is a plain reflex like the
+        others. With one run per setup we can't tell whether C's edge came from the loops it had early on, or from
+        luck between runs.</li>
+      <li><strong>The steady wind still wins.</strong> In all three runs, flights with a strong steady push failed
+        every time.</li>
+    </ul>
+    <p>Why would evolution drop memory that should help? A loop starts with a random weight, so at first it mostly
+      adds noise, and deleting a connection is one mutation away. To use memory, a genome needs several weights tuned
+      together across time before it pays off. Without protection, the simpler reflex networks outscore them first.
+      Ideas to try next: start with a hidden node with a loop and protect it (no deletion), train in steadier wind
+      first and add gusts later (a curriculum), or give the network its previous action as an extra input.</p>
   </div>
 </section>
 

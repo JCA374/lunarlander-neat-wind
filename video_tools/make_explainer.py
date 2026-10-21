@@ -27,7 +27,8 @@ STILLS = {'poster': ('title', 0, 0.5), 'network': ('network', 1, 0.6), 'genome':
           'training': ('gen_fitness', 2, 0.97), 'species': ('species', 1, 0.95),
           'ghosts': ('gen_ghosts', 3, 0.97), 'growth': ('growth', 1, 0.99),
           'evolution': ('evolution', 1, 0.97), 'read': ('read', 1, 0.6), 'ablation': ('ablation', 1, 0.95),
-          'harder': ('harder', 1, 0.97), 'wind': ('task', 3, 0.9), 'bonus': ('reward', 3, 0.95)}
+          'harder': ('harder', 1, 0.97), 'wind': ('task', 3, 0.9), 'bonus': ('reward', 3, 0.95),
+          'why': ('why', 1, 0.97), 'memory': ('memory', 1, 0.97), 'compare': ('compare', 1, 0.97)}
 
 
 def main():

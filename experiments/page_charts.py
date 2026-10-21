@@ -207,9 +207,62 @@ def reference(summary):
     return svg(W, H, ''.join(body), 'Average game score of four controllers in calm air and wind')
 
 
+def compare(cmp_):
+    rows = [('A', 'first wind run'), ('B', 'steadier search'), ('C', 'B + memory allowed')]
+    W, H, x0, pw, rh = 720, 170, 200, 380, 46
+    body = []
+    for v in (0, 25, 50, 75, 100):
+        x = x0 + v / 100 * pw
+        body.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="6" y2="{10 + rh * 3}" stroke="var(--line)"/>')
+        body.append(t(x, H - 8, f'{v}%', 12, anchor='middle'))
+    for i, (k, lab) in enumerate(rows):
+        r = cmp_['results'][k]
+        y = 12 + i * rh
+        body.append(t(x0 - 10, y + 19, f'{k}: {lab}', 13, 'var(--text)', 'end'))
+        body.append(bar_right(x0, y + 4, r['landed'] * pw, 24, 'var(--c3)' if k == 'C' else 'var(--muted)',
+                              f'run {k}: {100 * r["landed"]:.0f}% landed (95% CI {100 * r["landed_ci"][0]:.0f}-'
+                              f'{100 * r["landed_ci"][1]:.0f}%), average score {r["reward"]:.0f}, '
+                              f'{100 * r["centred"]:.0f}% in the middle'))
+        lo, hi = (x0 + c * pw for c in r['landed_ci'])
+        body.append(f'<line x1="{lo:.1f}" x2="{hi:.1f}" y1="{y + 16}" y2="{y + 16}" stroke="var(--text)" stroke-width="2"/>')
+        body.append(t(max(x0 + r['landed'] * pw, hi) + 12, y + 21, f'{100 * r["landed"]:.0f}% landed  ·  score {r["reward"]:.0f}',
+                      13, 'var(--text)'))
+    return svg(W, H, ''.join(body), 'Landing rate of the three run winners on the same 1,000 flights')
+
+
+def loops(points):
+    W, H, x0, y0, pw, ph = 720, 214, 48, 30, 600, 140
+    body = []
+    for v in (0, 50, 100):
+        y = y0 + ph - v / 100 * ph
+        body.append(f'<line x1="{x0}" x2="{x0 + pw}" y1="{y:.1f}" y2="{y:.1f}" stroke="var(--line)"/>')
+        body.append(t(x0 - 8, y + 4, f'{v}%', 12, anchor='end'))
+    pts = [(x0 + g / 499 * pw, y0 + ph - v * ph) for g, v in points]
+    body.append('<path d="M' + ' L'.join(f'{x:.1f},{y:.1f}' for x, y in pts) +
+                '" fill="none" stroke="var(--c1)" stroke-width="2"/>')
+    for (g, v), (x, y) in zip(points, pts):
+        body.append(marker('circle', x, y, 'var(--c1)', f'generation {g}: {100 * v:.0f}% of genomes have a loop'))
+        body.append(t(x, y - 12, f'{100 * v:.0f}%', 12, 'var(--text)', 'middle'))
+        body.append(t(x, y0 + ph + 20, g, 12, anchor='middle'))
+    body.append(t(x0 + pw / 2, y0 + ph + 38, 'generation', 12, anchor='middle'))
+    return svg(W, H + 10, ''.join(body), 'Share of run C genomes with a loop, by generation')
+
+
+def loop_shares(run_dir, gens=(0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 499)):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from compare_runs import loop_connections
+    snaps = runs.population_snapshots(run_dir)
+    out = []
+    for g in gens:
+        pop = list(runs.load_pickle(snaps[g])['population'].values())
+        out.append((g, sum(1 for x in pop if loop_connections(x)) / len(pop)))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument('run_dir')
+    ap.add_argument('run_dir', help='the run whose failure analysis feeds charts 1-4')
+    ap.add_argument('--memory-run', default=os.path.join(runs.ROOT, 'runs', 'run_wind_c'))
     args = ap.parse_args()
     name = os.path.basename(os.path.normpath(args.run_dir))
     d = os.path.join(runs.ROOT, 'results', 'failure_analysis', name)
@@ -220,6 +273,11 @@ def main():
         flights = [json.loads(line) for line in fh]
     charts = {'steady-wind': steady_wind(flights), 'progress': progress(args.run_dir, summary),
               'luck': luck(summary), 'reference': reference(summary)}
+    cmp_path = os.path.join(runs.ROOT, 'results', 'comparison', 'summary.json')
+    if os.path.exists(cmp_path):
+        with open(cmp_path) as fh:
+            charts['compare'] = compare(json.load(fh))
+        charts['loops'] = loops(loop_shares(args.memory_run))
     with open(PAGE) as fh:
         page = fh.read()
     for key, content in charts.items():

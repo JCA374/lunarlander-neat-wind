@@ -32,6 +32,9 @@ Clarity and visualisation come before raw performance. README.md is the user-fac
 - Fitness = env reward + centre bonus (up to 50, landing only). `reward` columns are the plain env score; "solved"
   (>= 200) is judged on it. The winner is chosen on validation `fitness`.
 - `experiments/baseline/` holds the no-wind champion, used by the video's "harder" scene.
+- Three published runs: A `run_wind_20261020` (classic), B `run_wind_b`, C `run_wind_c` (recurrent). The video and page
+  use C. `make_net` builds a `RecurrentNetwork` when `feed_forward = False`; `run_episode` resets it every flight.
+- `docs/index.html` charts are inline SVG written by `experiments/page_charts.py` between `<!-- chart:NAME -->` markers.
 - Seeds: training seeds are below 1e9. The 100 validation seeds start at 1e9, evaluate.py and the video use 2e9+, and the failure analysis (`experiments/`) uses 3e9+. Keep the four sets disjoint.
 - Every log is written during training, nothing only at the end. `--resume` truncates the logs back to the checkpoint generation.
 - neat-python 0.92 quirks handled in `train.py`:

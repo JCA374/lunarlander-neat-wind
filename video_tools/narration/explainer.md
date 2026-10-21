@@ -50,7 +50,7 @@ The action with the highest score fires. Watch the scores change as the lander f
 
 ## network.3
 
-This network has just one hidden node, and twenty-six connections. Nobody designed it. Evolution found every weight, and decided which connections to keep.
+This network has no hidden nodes at all, just twenty-two connections. Nobody designed it. Evolution found every weight, and decided which connections to keep.
 
 ## genome
 
@@ -126,7 +126,7 @@ Every genome in a generation flies the same starting positions, in the same wind
 
 ## fitness.3
 
-But five flights are noisy, and in wind they are very noisy. The top genome is often just lucky. So each generation, its champion also flies a hundred flights that no genome ever trained on. We only call the problem solved when that unseen game score reaches two hundred.
+But five windy flights are noisy, and the top genome is often just lucky. So the ten best genomes of each generation fly thirty more flights before they are kept. And each generation, the champion also flies a hundred flights that no genome ever trained on. We only call the problem solved when that unseen game score reaches two hundred.
 
 ## gen_fitness
 
@@ -134,11 +134,11 @@ Now the real run, five hundred generations. Every dot is one genome, and its col
 
 ## gen_fitness.2
 
-The cloud of dots rises quickly at first. By generation forty-two, the champion scores a hundred and fifty on unseen flights.
+Generation by generation, the cloud of dots creeps upward. By generation seventy-four, the champion scores a hundred and fifty on unseen flights.
 
 ## gen_fitness.3
 
-But then it stalls. The green line is the champion on the hundred unseen flights. It never reaches two hundred. The best champion of the whole run came early, from generation eighty-one, with a score of a hundred and eighty-two. The remaining four hundred generations never beat it. In wind, this problem was not solved.
+The green line is the champion on the hundred unseen flights. It never quite reaches two hundred. The best champion came from generation one hundred and ninety-seven, with a score of a hundred and eighty-seven, and three hundred more generations never beat it. In wind, this problem is still not solved.
 
 ## species
 
@@ -146,7 +146,7 @@ This is the classic NEAT picture. Each band is one species, and its height is ho
 
 ## species.2
 
-New species split off, grow when they do well, and shrink and die when they stop improving. Over the whole run, forty-six species came and went.
+New species split off, grow when they do well, and shrink and die when they stop improving. Over the whole run, thirty-five species came and went.
 
 ## gen_ghosts
 
@@ -170,7 +170,7 @@ This is how the champion's network changed. It started fully connected, with all
 
 ## growth.2
 
-Did the wind make hidden nodes necessary? The answer is: not really. The winner, from generation eighty-one, has a single hidden node. After that, the networks kept growing, to more than thirty hidden nodes and eighty connections. But those big networks flew worse on unseen flights, not better. More structure did not buy more skill here.
+This time the networks stayed small, because adding new nodes was made rarer. The winner, from generation one hundred and ninety-seven, has no hidden nodes at all, and twenty-two connections. This run was also allowed to grow loops, a kind of memory. The winner has none. More on that in a moment.
 
 ## evolution
 
@@ -190,11 +190,11 @@ The most important connection runs from the falling speed to the main engine, wi
 
 ## read.3
 
-Next, the tilt angle feeds the left engine. This is the connection that keeps the lander upright. Without it, only fifteen percent of these flights land.
+Next, the tilt angle feeds the left engine. This is one half of what keeps the lander upright. Without it, only twenty percent of these flights land.
 
 ## read.4
 
-Third, the left leg sensor holds back the right engine. Once a leg is down, the lander stops pushing itself sideways. Without it, the landing rate halves.
+And the tilt also feeds the right engine, the other way round. That is the other half. Without it, again only twenty percent land.
 
 ## ablation
 
@@ -202,11 +202,11 @@ Here are the connections that matter most, ranked by how much the landing rate d
 
 ## ablation.2
 
-Nineteen of the twenty-six connections can go with almost no loss. A handful of them carry the whole skill.
+Only six of the twenty-two connections can go with almost no loss. This small network uses nearly everything it has.
 
 ## ablation.3
 
-And the hidden node? Cut it out completely, and on a hundred test flights the lander does just as well. Seventy-five percent landings without it, seventy-two with it. Evolution added it, but the skill doesn't depend on it. The winner is, in effect, a network with no hidden layer at all.
+And there are no hidden nodes to switch off. Every connection runs straight from a sense to an action. Even in wind, evolution found no use for hidden structure.
 
 ## harder
 
@@ -214,11 +214,35 @@ So, is the wind hard enough? Here is the champion from the calm-air version of t
 
 ## harder.2
 
-In calm air, the old champion landed ninety-five percent of the time, with a score of two hundred and fifty-four. In wind, it drops to sixty-four percent, and a hundred and sixteen. The new winner, trained in wind, does better: seventy-two percent, a score of a hundred and sixty-six, and far more landings in the middle. The wind is clearly hard. It is too hard to solve within five hundred generations. But it still didn't force a hidden layer.
+In calm air, the old champion landed ninety-five percent of the time, with a score of two hundred and fifty-four. In wind, it drops to sixty-four percent, and a hundred and sixteen. The new winner, trained in wind, lands eighty-one percent, with a score of a hundred and seventy-four, and far more landings in the middle.
+
+## why
+
+So why is it still not solved? Our first wind run had stalled too, so we recorded a thousand of its flights and studied how they fail. Gusts that come and go are fine. But when the wind keeps pushing from one side for most of a flight, the lander fails every single time.
+
+## why.2
+
+And evolution itself was being fooled. Five windy flights are a lucky draw. The genome NEAT picked as best, in orange, always did much worse on a hundred fresh flights, in green. Often a better genome, in blue, was right there in the population, unnoticed. That is why this run gives the top genomes thirty extra flights, and adds new nodes less often.
+
+## memory
+
+The steady push has a deeper cause. Hovering still in calm air, and hovering still against a steady wind, give the network exactly the same eight numbers. But one needs no engine, and the other needs the engine on. A network that only reacts to the moment has to answer both the same way.
+
+## memory.2
+
+Engineers fix this with memory. A loop lets a node keep a running total of the drift, and keep pushing back for as long as the wind lasts. It is the integral part of a PID controller. So this run was allowed to evolve loops, and every network started with a few.
+
+## compare
+
+Here are three runs, flying the same thousand flights. The first run lands sixty-nine percent of them. Fixing the search alone gives seventy-one. The run that was allowed memory lands eighty percent.
+
+## compare.2
+
+But look what happened to the loops. Every genome started with them, and by generation two hundred almost none were left. The winner has no memory at all. So its gain did not come from remembering, and with one run each, we can't yet say how much was luck. None of the runs survive a strong, steady wind.
 
 ## outro
 
-On a hundred new windy flights, the winner lands seventy-two percent of the time, thirty-six percent in the middle, with an average score of a hundred and sixty-six. And it does that with one hidden node it doesn't really need, and twenty-six connections.
+On a hundred new windy flights, the winner lands eighty-one percent of the time, thirty-seven percent in the middle, with an average score of a hundred and seventy-four. Not solved, but closer. And it does that with no hidden nodes, and twenty-two connections.
 
 ## outro.2
 

@@ -1,14 +1,14 @@
 {
-  "landing_rate": 72.0,
-  "centred_rate": 36.0,
-  "avg_reward": 165.97003305041414,
-  "avg_steps": 324.62,
+  "landing_rate": 81.0,
+  "centred_rate": 37.0,
+  "avg_reward": 173.76777553849905,
+  "avg_steps": 394.53,
   "generations": 500,
   "solved_at": null,
-  "winner_generation": 81,
-  "hidden": 1,
-  "connections": 26,
+  "winner_generation": 197,
+  "hidden": 0,
+  "connections": 22,
   "pop_size": 150,
   "episodes": 5,
-  "species_total": 46
+  "species_total": 35
 }

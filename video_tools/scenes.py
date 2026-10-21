@@ -9,12 +9,16 @@ Parts: the problem (task, reward) · the network and its genome · how NEAT chan
 (mutation, crossover, speciation, the generation loop) · the real training run · the result.
 """
 
+import json
+import os
+
 import numpy as np
 from PIL import Image, ImageDraw
 
 from common import (ABLATION_EPISODES, ACTION_COLORS, AMBER, BG, BLUE, CENTRED, FG, FPS, GREEN, H, MUTED, PANEL,
                     RED, VIEW_H, VIEW_W, VIOLET, W, Scene, blank, ease, fade, fly, frame_at, heading, mix,
                     outcome, paste_flight, step_at, terrain_frame, text, wrap)
+from common import REPO_ROOT
 from neat_lander.env import CENTRE_BONUS, TURBULENCE_POWER, WIND_POWER
 from neat_lander.draw import draw_network, layout
 from neat_lander.labels import ACTION_NAMES, INPUT_NAMES
@@ -489,8 +493,8 @@ def scene_fitness(ctx, name='fitness'):
              fade(t, 0.3), mono=True, bg=PANEL)
         items = [(1, 'Every genome in a generation flies the same starting positions in the same wind, so the '
                      'comparison is fair. Starts and wind change every generation, so nobody can memorise one.'),
-                 (2, 'A score from 5 episodes is noisy: the top genome is often just lucky. So every '
-                     'generation its champion also flies 100 episodes no genome ever trained on.'),
+                 (2, 'A score from 5 windy episodes is noisy: the top genome is often just lucky. So the 10 best '
+                     'also fly 30 more before they are kept, and the champion flies 100 episodes no genome trained on.'),
                  (2, f'Solved = an average game score of {ctx.run.threshold:.0f} or more on those 100 unseen '
                      'episodes (without the bonus).')]
         for i, (beat, s) in enumerate(items):
@@ -884,6 +888,9 @@ def scene_ablation(ctx, name='ablation'):
         text(d, (80, 616), f'{spare} of {len(ranked)} connections can go with almost no loss; '
              f'a handful carry the whole skill.', 21, AMBER, a)
         a = fade(t, b.at(2))
+        if a > 0 and not nh:
+            text(d, (80, 652), 'No hidden nodes and no loops: every connection runs straight from an input to an '
+                 'action.', 21, VIOLET, a, bold=True)
         if a > 0 and nh:
             off, on = ctx.without_hidden(), ctx.stats
             what = 'the hidden node' if nh == 1 else f'all {nh} hidden nodes'
@@ -938,6 +945,171 @@ def scene_harder(ctx, name='harder'):
         return img
     longest = max(len(old['frames']), len(new['frames'])) / (FPS * 1.4)
     return Scene(name, render, [max(7.0, longest + 1.5), 9.0], min_beats=[longest + 1.0, 0])
+
+
+def _results(*parts):
+    with open(os.path.join(REPO_ROOT, 'results', *parts)) as fh:
+        return json.load(fh)
+
+
+def scene_why(ctx, name='why', analysis='run_wind_20261020'):
+    """Beats: failure rate by steady wind; NEAT's lucky pick vs the best genome it had (run A)."""
+    fa = _results('failure_analysis', analysis, 'summary.json')
+    rates = fa['failure_rate_by_mean_wind']
+    names = ['strong\nleft', 'moderate\nleft', 'little or\nnone', 'moderate\nright', 'strong\nright']
+    noise = fa['selection_noise']
+    gens = sorted(int(g) for g in noise)
+
+    def render(t, b):
+        img = blank()
+        d = ImageDraw.Draw(img)
+        heading(d, 'Why the first run failed', t, '1,000 test flights and 7 re-flown populations')
+        # left: failure rate by steady wind
+        x0, y0, ph, bw = 90, 220, 300, 78
+        text(d, (x0, 145), 'failure rate by the average wind over a flight', 19, MUTED, fade(t, 0.3))
+        for i, (k, (r, n)) in enumerate(rates.items()):
+            a = fade(t, 0.5 + 0.25 * i)
+            x = x0 + i * (bw + 22)
+            h = int(ph * r * ease((t - 0.5 - 0.25 * i) / 0.8))
+            col = RED if r > 0.4 else mix(BG, MUTED, 0.7)
+            d.rounded_rectangle([x, y0 + ph - h, x + bw, y0 + ph], 4, fill=mix(BG, col, a))
+            text(d, (x + bw // 2, y0 + ph - h - 30), f'{100 * r:.0f}%', 24, FG, a, bold=True, anchor='ma')
+            for j, line in enumerate(names[i].split('\n')):
+                text(d, (x + bw // 2, y0 + ph + 10 + 22 * j), line, 17, MUTED, a, anchor='ma')
+        # right: lucky pick vs best genome
+        a1 = fade(t, b.at(1))
+        if a1 > 0:
+            px, py, pw2, ph2 = 700, 190, 500, 330
+            text(d, (px, 150), 'top genome: 5 lucky flights vs 100 fresh flights', 19, MUTED, a1)
+            lo, hi = -50, 250
+
+            def Y(v):
+                return py + ph2 - (np.clip(v, lo, hi) - lo) / (hi - lo) * ph2
+            for v in (0, 100, 200):
+                d.line([px, Y(v), px + pw2, Y(v)], fill=mix(BG, PANEL, a1), width=1)
+                text(d, (px - 8, Y(v)), str(v), 15, MUTED, a1, anchor='rm')
+            for i, g in enumerate(gens):
+                n = noise[str(g)]
+                x = px + 30 + i * (pw2 - 60) / (len(gens) - 1)
+                aa = fade(t, b.at(1) + 0.3 + 0.2 * i)
+                d.line([x, Y(n['train_best_train']), x, Y(n['train_best_true'])], fill=mix(BG, MUTED, aa), width=2)
+                d.ellipse([x - 7, Y(n['train_best_train']) - 7, x + 7, Y(n['train_best_train']) + 7],
+                          fill=mix(BG, AMBER, aa))
+                d.ellipse([x - 7, Y(n['train_best_true']) - 7, x + 7, Y(n['train_best_true']) + 7],
+                          fill=mix(BG, GREEN, aa))
+                d.rectangle([x + 10, Y(n['true_best']) - 6, x + 22, Y(n['true_best']) + 6], fill=mix(BG, BLUE, aa))
+                text(d, (x, py + ph2 + 10), str(g), 15, MUTED, aa, anchor='ma')
+            for j, (col, lab) in enumerate([(AMBER, "NEAT's pick, 5 flights"), (GREEN, 'same genome, 100 flights'),
+                                            (BLUE, 'best genome it had')]):
+                yy = py + ph2 + 50 + 26 * j
+                d.ellipse([px, yy + 4, px + 12, yy + 16], fill=mix(BG, col, a1))
+                text(d, (px + 22, yy), lab, 17, FG, a1)
+        return img
+    return Scene(name, render, [8.0, 9.0])
+
+
+def scene_memory(ctx, name='memory'):
+    """Beats: a reflex sees calm air and a steady push as the same state; a loop keeps a running total."""
+    def node(d, xy, label, a, r=34, ring=None):
+        x, y = xy
+        d.ellipse([x - r, y - r, x + r, y + r], fill=mix(BG, PANEL, a), outline=mix(BG, ring or MUTED, a), width=3)
+        text(d, (x, y), label, 22, FG, a, anchor='mm', bg=PANEL)
+
+    def arrow(d, p, q, a, col=MUTED, width=3):
+        d.line([p, q], fill=mix(BG, col, a), width=width)
+        ang = np.arctan2(q[1] - p[1], q[0] - p[0])
+        tip = [q, (q[0] - 14 * np.cos(ang - 0.4), q[1] - 14 * np.sin(ang - 0.4)),
+               (q[0] - 14 * np.cos(ang + 0.4), q[1] - 14 * np.sin(ang + 0.4))]
+        d.polygon(tip, fill=mix(BG, col, a))
+
+    def render(t, b):
+        img = blank()
+        d = ImageDraw.Draw(img)
+        heading(d, 'What a reflex cannot do', t, 'and how memory could help')
+        a0 = fade(t, 0.4)
+        for i, (title, sub, act) in enumerate([('calm air', 'hovering still', 'do nothing'),
+                                               ('steady wind →', 'hovering still', 'keep firing')]):
+            x = 120 + i * 300
+            aa = fade(t, 0.6 + 1.2 * i)
+            d.rounded_rectangle([x, 160, x + 250, 380], 12, fill=mix(BG, PANEL, aa))
+            text(d, (x + 125, 185), title, 22, AMBER if i else FG, aa, bold=True, anchor='ma', bg=PANEL)
+            text(d, (x + 125, 225), sub, 19, MUTED, aa, anchor='ma', bg=PANEL)
+            text(d, (x + 125, 265), 'speed 0 · tilt 0', 19, FG, aa, anchor='ma', bg=PANEL, mono=True)
+            text(d, (x + 125, 330), f'needs: {act}', 20, GREEN if i == 0 else RED, aa, anchor='ma', bg=PANEL)
+        for j, line in enumerate(['Same 8 inputs, different answer needed.',
+                                  'A feed-forward network can only give one',
+                                  'answer, so it lets the wind win a little,', 'again and again.']):
+            text(d, (120, 420 + 32 * j), line, 21, FG, fade(t, 3.0 + 0.3 * j))
+        a1 = fade(t, b.at(1))
+        if a1 > 0:
+            cx = 820
+            node(d, (cx, 300), 'vx', a1)
+            node(d, (cx + 160, 300), 'h', a1, ring=AMBER)
+            node(d, (cx + 320, 300), 'right', a1, r=40)
+            arrow(d, (cx + 36, 300), (cx + 124, 300), a1)
+            arrow(d, (cx + 196, 300), (cx + 278, 300), a1)
+            d.arc([cx + 125, 200, cx + 195, 280], 150, 390, fill=mix(BG, AMBER, a1), width=4)
+            text(d, (cx + 160, 180), 'loop: remembers', 18, AMBER, a1, anchor='ma')
+            text(d, (cx - 60, 380), 'h(now) = tanh( h(before) + 0.1·vx(now) )', 18, FG, a1, mono=True)
+            text(d, (cx - 60, 425), 'a running total of the drift:', 20, MUTED, a1)
+            text(d, (cx - 60, 455), 'the "I" in a PID controller', 20, MUTED, a1)
+        return img
+    return Scene(name, render, [11.0, 10.0])
+
+
+def scene_compare(ctx, name='compare'):
+    """Beats: A/B/C on the same 1,000 flights; what happened to the loops in run C."""
+    cmp_ = _results('comparison', 'summary.json')
+    res = cmp_['results']
+    rows = [('A', 'first run', MUTED), ('B', 'steadier search', BLUE), ('C', 'B + memory allowed', GREEN)]
+    snaps = runs_loops(ctx)
+
+    def render(t, b):
+        img = blank()
+        d = ImageDraw.Draw(img)
+        heading(d, 'Three runs, the same 1,000 flights', t, 'winners compared flight by flight')
+        x0, bw = 330, 520
+        for i, (k, lab, col) in enumerate(rows):
+            r = res[k]
+            a = fade(t, 0.4 + 0.5 * i)
+            y = 170 + i * 120
+            text(d, (x0 - 20, y + 4), f'{k}: {lab}', 22, FG, a, bold=True, anchor='ra')
+            w = int(bw * r['landed'] * ease((t - 0.4 - 0.5 * i) / 0.9))
+            d.rounded_rectangle([x0, y, x0 + max(w, 6), y + 34], 4, fill=mix(BG, col, a))
+            lo, hi = r['landed_ci']
+            d.line([x0 + bw * lo, y + 17, x0 + bw * hi, y + 17], fill=mix(BG, FG, a), width=2)
+            text(d, (x0 + bw + 20, y + 2), f'{100 * r["landed"]:.0f}% landed', 22, FG, a)
+            text(d, (x0 + bw + 20, y + 32), f'score {r["reward"]:.0f}', 18, MUTED, a)
+        text(d, (x0, 530), 'line on each bar: 95% confidence interval (bootstrap)', 16, MUTED, fade(t, 2.0))
+        a1 = fade(t, b.at(1))
+        if a1 > 0:
+            d.rectangle([0, 560, W, H], fill=BG)
+            px, py, pw2, ph2 = 330, 590, 520, 80
+            text(d, (px - 20, py + 30), 'run C: genomes with a loop', 19, AMBER, a1, anchor='ra')
+            pts = [(px + g / 499 * pw2, py + ph2 - v * ph2) for g, v in snaps]
+            d.line(pts, fill=mix(BG, AMBER, a1), width=3)
+            for g, v in snaps:
+                text(d, (px + g / 499 * pw2, py + ph2 - v * ph2 - 22), f'{100 * v:.0f}%', 14, FG, a1, anchor='ma')
+                text(d, (px + g / 499 * pw2, py + ph2 + 8), f'gen {g}', 13, MUTED, a1, anchor='ma')
+            text(d, (px + pw2 + 20, py + 50), 'evolution dropped the memory', 19, AMBER, a1)
+        return img
+    return Scene(name, render, [11.0, 9.0])
+
+
+def runs_loops(ctx):
+    """[(generation, share of run C's population with a loop)] from its population snapshots."""
+    def run():
+        import sys
+        sys.path.insert(0, os.path.join(REPO_ROOT, 'experiments'))
+        from compare_runs import loop_connections
+        from neat_lander import runs
+        snaps = runs.population_snapshots(os.path.join(REPO_ROOT, 'runs', 'run_wind_c'))
+        out = []
+        for g in (0, 50, 100, 200, 300, 400, 499):
+            pop = list(runs.load_pickle(snaps[g])['population'].values())
+            out.append((g, sum(1 for x in pop if loop_connections(x)) / len(pop)))
+        return out
+    return ctx.cached('loops_c', run)
 
 
 def scene_outro(ctx, name='outro'):

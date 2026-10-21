@@ -13,6 +13,7 @@ def explainer(ctx):
         S.scene_genome(ctx), S.scene_mutation(ctx), S.scene_crossover(ctx), S.scene_speciation(ctx),
         S.scene_loop(ctx), S.scene_fitness(ctx), S.scene_gen_fitness(ctx), S.scene_species(ctx),
         S.scene_gen_ghosts(ctx), S.scene_growth(ctx), S.scene_evolution(ctx), S.scene_read(ctx),
-        S.scene_ablation(ctx), S.scene_harder(ctx), S.scene_outro(ctx),
+        S.scene_ablation(ctx), S.scene_harder(ctx), S.scene_why(ctx), S.scene_memory(ctx),
+        S.scene_compare(ctx), S.scene_outro(ctx),
     ]
 
