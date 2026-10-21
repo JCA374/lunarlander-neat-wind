@@ -18,7 +18,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from neat_lander import runs  # noqa: E402
-from neat_lander.env import make_env, make_net  # noqa: E402
+from neat_lander.env import CENTRED, make_env, make_net, seed_wind, wind_force  # noqa: E402
 
 SEED0 = 3_000_000_000
 _genome = _config = None
@@ -30,14 +30,16 @@ def _init(genome, config):
 
 
 def fly(seed):
-    """One flight: every state, action, the 4 output scores, reward, and why it ended."""
+    """One flight: every state, action, the 4 output scores, reward, wind force, and why it ended."""
     env, net = make_env(), make_net(_genome, _config)
+    seed_wind(env, seed)
     obs, _ = env.reset(seed=seed)
-    states, actions, outputs, rewards = [], [], [], []
+    states, actions, outputs, rewards, wind = [], [], [], [], []
     terminated = truncated = False
     while not (terminated or truncated):
         out = net.activate(obs)
         a = int(np.argmax(out))
+        wind.append(round(wind_force(env), 4))
         states.append([round(float(v), 5) for v in obs])
         actions.append(a)
         outputs.append([round(float(v), 4) for v in out])
@@ -55,10 +57,12 @@ def fly(seed):
     else:
         outcome, cause = 'timeout', 'still flying after 1000 steps'
     on_pad = bool(abs(obs[0]) < 0.2)
+    centred = bool(outcome == 'landed' and abs(obs[0]) < CENTRED)
     env.close()
     return {'seed': seed, 'outcome': outcome, 'cause': cause, 'reward': round(sum(rewards), 2),
             'steps': len(actions), 'final': [round(float(v), 5) for v in obs], 'on_pad': on_pad,
-            'states': states, 'actions': actions, 'outputs': outputs, 'rewards': rewards,
+            'centred': centred, 'states': states, 'actions': actions, 'outputs': outputs, 'rewards': rewards,
+            'wind': wind,
             'game_over': bool(getattr(u, 'game_over', False))}
 
 
@@ -66,7 +70,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument('run_dir')
     ap.add_argument('--episodes', type=int, default=1000)
-    ap.add_argument('--workers', type=int, default=4)
+    ap.add_argument('--workers', type=int, default=mp.cpu_count())
     args = ap.parse_args()
     genome, config = runs.load_winner(args.run_dir), runs.load_config(args.run_dir)
     name = os.path.basename(os.path.normpath(args.run_dir))

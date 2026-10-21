@@ -1,0 +1,396 @@
+{
+ "episodes": 1000,
+ "landed": 689,
+ "crashed": 270,
+ "timeout": 41,
+ "failures_ending_over_pad": 0.2958199356913183,
+ "shaping_auc": 0.5191915842823921,
+ "signals": {
+  "x": {
+   "auc": 0.6798851175352814,
+   "direction": "lower",
+   "partial_corr": null,
+   "normal_median": 0.0333,
+   "median_at_failure": -0.22371,
+   "leaves_normal_range_steps_before": null
+  },
+  "y": {
+   "auc": 0.7124074503870226,
+   "direction": "lower",
+   "partial_corr": null,
+   "normal_median": 0.29253,
+   "median_at_failure": -0.02834,
+   "leaves_normal_range_steps_before": null
+  },
+  "vx": {
+   "auc": 0.7116880771420863,
+   "direction": "lower",
+   "partial_corr": null,
+   "normal_median": 0.00268,
+   "median_at_failure": -0.14235,
+   "leaves_normal_range_steps_before": null
+  },
+  "vy": {
+   "auc": 0.7149139119082465,
+   "direction": "lower",
+   "partial_corr": null,
+   "normal_median": -0.14351,
+   "median_at_failure": -0.19101,
+   "leaves_normal_range_steps_before": 46
+  },
+  "angle": {
+   "auc": 0.6757834669157017,
+   "direction": "lower",
+   "partial_corr": null,
+   "normal_median": -0.0001,
+   "median_at_failure": -0.00083,
+   "leaves_normal_range_steps_before": null
+  },
+  "spin": {
+   "auc": 0.5047268869772725,
+   "direction": "higher",
+   "partial_corr": null,
+   "normal_median": 0.0,
+   "median_at_failure": 0.18462,
+   "leaves_normal_range_steps_before": 3
+  },
+  "L leg": {
+   "auc": 0.5566083650574778,
+   "direction": "higher",
+   "partial_corr": null,
+   "normal_median": 0.0,
+   "median_at_failure": 1.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "R leg": {
+   "auc": 0.5280469724590465,
+   "direction": "higher",
+   "partial_corr": null,
+   "normal_median": 0.0,
+   "median_at_failure": 1.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "speed": {
+   "auc": 0.6848798680228115,
+   "direction": "higher",
+   "partial_corr": 0.14268271935776305,
+   "normal_median": 0.282306359297838,
+   "median_at_failure": 0.3328213792712241,
+   "leaves_normal_range_steps_before": null
+  },
+  "|angle|": {
+   "auc": 0.7398751438598453,
+   "direction": "higher",
+   "partial_corr": 0.16783912372217202,
+   "normal_median": 0.09736,
+   "median_at_failure": 0.20968,
+   "leaves_normal_range_steps_before": null
+  },
+  "|spin|": {
+   "auc": 0.6653603998030626,
+   "direction": "higher",
+   "partial_corr": 0.31255921135227593,
+   "normal_median": 0.04971,
+   "median_at_failure": 0.46604,
+   "leaves_normal_range_steps_before": 9
+  },
+  "tilt growing": {
+   "auc": 0.5198328679967996,
+   "direction": "higher",
+   "partial_corr": 0.15338883800861394,
+   "normal_median": 0.0,
+   "median_at_failure": 0.015114755600000002,
+   "leaves_normal_range_steps_before": null
+  },
+  "distance": {
+   "auc": 0.6583608859393748,
+   "direction": "lower",
+   "partial_corr": 0.21158035682394286,
+   "normal_median": 0.41694564082143853,
+   "median_at_failure": 0.25153596005342854,
+   "leaves_normal_range_steps_before": null
+  },
+  "main duty": {
+   "auc": 0.5487840629454196,
+   "direction": "higher",
+   "partial_corr": 0.02052734994016618,
+   "normal_median": 0.5,
+   "median_at_failure": 0.45,
+   "leaves_normal_range_steps_before": null
+  },
+  "side duty": {
+   "auc": 0.5250982199683211,
+   "direction": "higher",
+   "partial_corr": 0.12866007992283918,
+   "normal_median": 0.45,
+   "median_at_failure": 0.5,
+   "leaves_normal_range_steps_before": null
+  },
+  "switches": {
+   "auc": 0.5249288514772344,
+   "direction": "higher",
+   "partial_corr": -0.18873924939474562,
+   "normal_median": 0.65,
+   "median_at_failure": 0.45,
+   "leaves_normal_range_steps_before": null
+  },
+  "one leg down": {
+   "auc": 0.547693150028594,
+   "direction": "higher",
+   "partial_corr": 0.049175523616131506,
+   "normal_median": 0.0,
+   "median_at_failure": 0.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "margin": {
+   "auc": 0.6245656063298526,
+   "direction": "lower",
+   "partial_corr": 0.09049541154377723,
+   "normal_median": 0.0012999999999999678,
+   "median_at_failure": 0.0039000000000000146,
+   "leaves_normal_range_steps_before": null
+  },
+  "low & fast": {
+   "auc": 0.8326260880299999,
+   "direction": "higher",
+   "partial_corr": 0.19882095886986756,
+   "normal_median": 0.0,
+   "median_at_failure": 0.19101,
+   "leaves_normal_range_steps_before": 30
+  },
+  "low & off-centre": {
+   "auc": 0.7925823055515283,
+   "direction": "higher",
+   "partial_corr": 0.22331837149964912,
+   "normal_median": 0.00231,
+   "median_at_failure": 0.24711,
+   "leaves_normal_range_steps_before": null
+  },
+  "time": {
+   "auc": 0.5732092935396587,
+   "direction": "higher",
+   "partial_corr": -0.23591361595031887,
+   "normal_median": 197.0,
+   "median_at_failure": 198.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "wind": {
+   "auc": 0.5705861030398588,
+   "direction": "lower",
+   "partial_corr": -0.23564085447542046,
+   "normal_median": 0.0,
+   "median_at_failure": 0.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "|wind|": {
+   "auc": 0.5526093619553644,
+   "direction": "lower",
+   "partial_corr": 0.016871761731054136,
+   "normal_median": 0.37916,
+   "median_at_failure": 0.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "wind away": {
+   "auc": 0.5259662764841482,
+   "direction": "higher",
+   "partial_corr": 0.05017445645180768,
+   "normal_median": 0.0,
+   "median_at_failure": 0.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "wind with drift": {
+   "auc": 0.5102713562990495,
+   "direction": "higher",
+   "partial_corr": -0.033322499526002476,
+   "normal_median": 0.0021621602,
+   "median_at_failure": 0.0,
+   "leaves_normal_range_steps_before": null
+  },
+  "gust change": {
+   "auc": 0.5788321698864848,
+   "direction": "higher",
+   "partial_corr": 0.20097414506957365,
+   "normal_median": 0.1499866666666667,
+   "median_at_failure": 0.5135933333333333,
+   "leaves_normal_range_steps_before": null
+  },
+  "wind, last 50": {
+   "auc": 0.5811960927109259,
+   "direction": "higher",
+   "partial_corr": 0.15853898281563097,
+   "normal_median": 0.4350218666666666,
+   "median_at_failure": 0.48424439999999974,
+   "leaves_normal_range_steps_before": null
+  }
+ },
+ "causes": {
+  "body hit the ground": 266,
+  "left the screen": 4,
+  "still flying after 1000 steps": 41
+ },
+ "start_push_median": {
+  "failed": 0.5933509290462096,
+  "landed": 0.5057487269385855
+ },
+ "failure_rate_by_mean_wind": {
+  "-15..-7": [
+   1.0,
+   26
+  ],
+  "-7..-2": [
+   0.5046728971962616,
+   214
+  ],
+  "-2..+2": [
+   0.20086083213773315,
+   697
+  ],
+  "+2..+7": [
+   0.543859649122807,
+   57
+  ],
+  "+7..+15": [
+   1.0,
+   6
+  ]
+ },
+ "onset_to_failure_steps": [
+  120,
+  159,
+  149
+ ],
+ "selection_noise": {
+  "10": {
+   "within_sd": 43.401991233842786,
+   "between_sd": 141.35083244234218,
+   "retest_r": 0.8880379968116374,
+   "rank_corr_train_true": 0.9096599848882172,
+   "train_best_true_percentile": 1.0,
+   "train_best_train": 136.79560914818654,
+   "train_best_true": 44.907758128206545,
+   "true_best": 44.907758128206545
+  },
+  "50": {
+   "within_sd": 48.43872305710472,
+   "between_sd": 110.47416367817834,
+   "retest_r": 0.8303744788580997,
+   "rank_corr_train_true": 0.8913409484865994,
+   "train_best_true_percentile": 0.9933333333333333,
+   "train_best_train": 223.73500516159478,
+   "train_best_true": 118.79480882085181,
+   "true_best": 139.41561659272628
+  },
+  "80": {
+   "within_sd": 64.1528361240912,
+   "between_sd": 212.104610720831,
+   "retest_r": 0.8738152544864822,
+   "rank_corr_train_true": 0.914584648206587,
+   "train_best_true_percentile": 0.9533333333333334,
+   "train_best_train": 196.83941773132568,
+   "train_best_true": 94.66627907657248,
+   "true_best": 164.33731864917212
+  },
+  "150": {
+   "within_sd": 48.05432997732069,
+   "between_sd": 165.4151304959678,
+   "retest_r": 0.9125424609634176,
+   "rank_corr_train_true": 0.9153029023512157,
+   "train_best_true_percentile": 0.98,
+   "train_best_train": 154.88432058199376,
+   "train_best_true": 62.34719912148576,
+   "true_best": 155.5120639877102
+  },
+  "250": {
+   "within_sd": 52.56844960821788,
+   "between_sd": 161.39604365775725,
+   "retest_r": 0.9181401664468514,
+   "rank_corr_train_true": 0.9063496155384684,
+   "train_best_true_percentile": 0.8866666666666667,
+   "train_best_train": 100.68739763149863,
+   "train_best_true": -6.806204401293281,
+   "true_best": 36.04398304623991
+  },
+  "350": {
+   "within_sd": 51.78931324344697,
+   "between_sd": 146.88662631246382,
+   "retest_r": 0.8973971791454503,
+   "rank_corr_train_true": 0.9250206675852262,
+   "train_best_true_percentile": 0.98,
+   "train_best_train": 134.1411931935933,
+   "train_best_true": 56.725425379067055,
+   "true_best": 105.67403411926644
+  },
+  "499": {
+   "within_sd": 62.75930793073751,
+   "between_sd": 148.39388863460735,
+   "retest_r": 0.8853780762886104,
+   "rank_corr_train_true": 0.889758655940264,
+   "train_best_true_percentile": 0.9333333333333333,
+   "train_best_train": 163.7640476910111,
+   "train_best_true": 64.67350983583425,
+   "true_best": 107.79804736385003
+  }
+ },
+ "progress": {
+  "val_median_25_at": {
+   "50": 72.51,
+   "100": 125.79,
+   "200": 66.61,
+   "300": 11.55,
+   "400": 49.88,
+   "499": 46.64
+  },
+  "true_best": {
+   "10": 44.907758128206545,
+   "50": 139.41561659272628,
+   "80": 164.33731864917212,
+   "150": 155.5120639877102,
+   "250": 36.04398304623991,
+   "350": 105.67403411926644,
+   "499": 107.79804736385003
+  }
+ },
+ "bloat": {
+  "rank_corr_hidden_true": 0.08146333012546951,
+  "mean_hidden": {
+   "10": 0.96,
+   "50": 3.993333333333333,
+   "80": 4.966666666666667,
+   "150": 6.526666666666666,
+   "250": 15.9,
+   "350": 23.213333333333335,
+   "499": 27.9
+  }
+ },
+ "diversity": {
+  "species_median_after_150": 4.0,
+  "largest_share_median_after_150": 0.34
+ },
+ "reference": {
+  "hand-written heuristic, calm": {
+   "reward": 235.9563020585564,
+   "landed": 0.925,
+   "centred": 0.58
+  },
+  "hand-written heuristic, wind": {
+   "reward": 91.52574235974893,
+   "landed": 0.47,
+   "centred": 0.205
+  },
+  "calm-air NEAT champion, wind": {
+   "fitness": 118.94210970193622,
+   "std": 201.44596654336286,
+   "reward": 108.06521858070981,
+   "landed": 0.585,
+   "centred": 0.24,
+   "abs_x": 0.8932836804648788,
+   "crashed": 0.33,
+   "steps": 320.63
+  },
+  "wind NEAT winner, wind": {
+   "reward": 159.68994,
+   "landed": 0.689,
+   "centred": 0.293
+  }
+ }
+}
