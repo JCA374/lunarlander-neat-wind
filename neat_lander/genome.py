@@ -11,7 +11,12 @@ With num_hidden = 0 (runs A, B, C) it behaves exactly like DefaultGenome. With n
   evolves as usual.
 
 FrozenMemoryGenome (run E) also keeps every memory loop at exactly LOOP_WEIGHT, so each memory node can only
-keep a running total of what it is fed. Evolution chooses what to feed it and how to use it.
+keep a running total of what it is fed. Evolution chooses what to feed it and how to use it. With tanh, though,
+such a node hits +-1 within ~20 steps and stays there: a latch, not a running total.
+
+LeakyMemoryGenome (run F) fixes that: memory nodes are linear (identity activation, no bias) and their loop is
+fixed at LEAK = 0.9, so each keeps a fading sum of recent inputs, h(now) = 0.9 h(before) + inputs, that can
+neither saturate nor run away (a constant input x settles at 10 x).
 """
 
 from itertools import count
@@ -20,6 +25,7 @@ from random import choice
 import neat
 
 LOOP_WEIGHT = 1.0
+LEAK = 0.9
 
 
 def memory_keys(config):
@@ -78,3 +84,24 @@ class FrozenMemoryGenome(MemoryGenome):
         for k in self._memory:
             if (k, k) in self.connections:
                 self.connections[(k, k)].weight = LOOP_WEIGHT
+
+
+class LeakyMemoryGenome(MemoryGenome):
+    def configure_new(self, config):
+        super().configure_new(config)
+        keys = memory_keys(config)
+        for (a, b), c in self.connections.items():
+            if b in keys and a != b:
+                c.weight *= 1 - LEAK      # start at gain 1: a steady input x settles at about x, not 10 x
+        self._fix_memory(keys)
+
+    def mutate(self, config):
+        super().mutate(config)
+        self._fix_memory(self._memory)
+
+    def _fix_memory(self, keys):
+        for k in keys:
+            self.nodes[k].activation = 'identity'
+            self.nodes[k].bias = 0.0
+            if (k, k) in self.connections:
+                self.connections[(k, k)].weight = LEAK

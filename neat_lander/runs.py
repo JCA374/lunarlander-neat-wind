@@ -24,7 +24,7 @@ from datetime import datetime
 
 import neat
 
-from .genome import FrozenMemoryGenome, MemoryGenome
+from .genome import FrozenMemoryGenome, LeakyMemoryGenome, MemoryGenome
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNS_DIR = os.path.join(ROOT, 'runs')
@@ -56,12 +56,12 @@ def latest_run():
 
 
 def load_config(path):
-    """A neat Config. The genome section picks the class: [FrozenMemoryGenome] (run E), [MemoryGenome] (run D), [DefaultGenome]."""
+    """A neat Config. The genome section picks the class: [LeakyMemoryGenome] (run F), [FrozenMemoryGenome] (run E), [MemoryGenome] (run D), [DefaultGenome]."""
     if os.path.isdir(path):
         path = os.path.join(path, 'config.ini')
     with open(path) as fh:
         text = fh.read()
-    genome = next((g for g in (FrozenMemoryGenome, MemoryGenome) if f'[{g.__name__}]' in text), neat.DefaultGenome)
+    genome = next((g for g in (LeakyMemoryGenome, FrozenMemoryGenome, MemoryGenome) if f'[{g.__name__}]' in text), neat.DefaultGenome)
     return neat.Config(genome, neat.DefaultReproduction,
                        neat.DefaultSpeciesSet, neat.DefaultStagnation, path)
 
