@@ -1,0 +1,12 @@
+{
+  "config": "neat-config-e.ini",
+  "generations": 1000,
+  "episodes": 5,
+  "workers": null,
+  "pop": null,
+  "seed": null,
+  "name": "run_wind_e",
+  "resume": null,
+  "reeval_top": 10,
+  "reeval_episodes": 30
+}

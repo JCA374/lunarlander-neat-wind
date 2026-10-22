@@ -26,6 +26,7 @@ enough for evolution to *need* hidden structure:
 | B `runs/run_wind_b` | `neat-config-b.ini` + `--reeval-top 10` | top 10 re-flown on 30 extra episodes; fewer structural mutations; `max_stagnation` 40 | 71% landed, score 169, 2 hidden nodes |
 | C `runs/run_wind_c` | `neat-config-c.ini` + `--reeval-top 10` | B + `feed_forward = False` (loops, memory) | 80% landed, score 171, 0 hidden nodes, 0 loops |
 | D `runs/run_wind_d` | `neat-config-d.ini` + `--reeval-top 10`, 1,500 generations | C + 2 protected memory nodes (`neat_lander/genome.py`) | **85% landed, score 191** [185, 197], 3 hidden nodes, 2 loops |
+| E `runs/run_wind_e` | `neat-config-e.ini` + `--reeval-top 10` | D with the memory loops frozen at 1.0 | 78% landed, score 165, memory disconnected (`results/comparison_e/`) |
 
 None reached an average game score of 200. The video and page use run D's winner. What we learned
 (`experiments/analyze_flights.py`, `experiments/compare_runs.py`, and the page's "Why it fails" and "Memory" sections):
@@ -38,7 +39,9 @@ None reached an average game score of 200. The video and page use run D's winner
   points and doubled the typical champion's score, but didn't raise the best one.
 - **Evolution doesn't use memory.** Run C started every genome with 4 loops; by generation 200 only 1% had any,
   and the winner has none. Run D's memory nodes couldn't be deleted, but switching them off changes not a single
-  one of 1,000 flights.
+  one of 1,000 flights. Run E froze the loops at 1.0: with `tanh`, the nodes then sit at ±1 within ~20 steps (a
+  latch, not a running total), and evolution cut them off from the actions. A working integrator likely needs a
+  leaky loop (~0.9) and a linear activation.
 - **With the steadier search, long training pays off.** A, B and C plateaued after generation 100-200. Run D kept
   improving until about generation 1,100 (+20 over C, CI +12 to +29), then slid back; it was stopped at 1,500.
 

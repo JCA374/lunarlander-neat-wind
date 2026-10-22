@@ -534,10 +534,10 @@
 <section id="memory">
   <div class="wrap">
     <h2><span class="num">10</span>Memory: what the network can't do yet</h2>
-    <div class="callout" id="bc-result"><strong>Result: memory didn't help, longer training did.</strong> Three more
+    <div class="callout" id="bc-result"><strong>Result: memory didn't help, longer training did.</strong> Four more
       runs finished on 21–22 October 2026. Run C was allowed loops, and evolution threw them away. Run D started every
       network with two protected memory nodes and trained for 1,500 generations. It is the best by far, but switching
-      its memory off changes nothing. The comparison is at the end of this section.</div>
+      its memory off changes nothing. Run E froze the memory loops at 1.0 and did worse. The comparison is at the end of this section.</div>
 
     <p class="intro">Finding 1 has a simple cause. Every network so far is <strong>feed-forward</strong>: each step,
       the 8 numbers flow from the inputs to the outputs and that's it. Nothing is kept for the next step. The
@@ -678,15 +678,22 @@
       <li><strong>But not because it remembers.</strong> Switch every loop in D's winner off and it flies all 1,000
         flights exactly the same. One memory node only nudges "do nothing"; the other loops around without reaching any
         action. The gain came from the steadier search plus much longer training.</li>
+      <li><strong>Run E froze the memory loops at exactly 1.0</strong>, so the memory nodes could only add up. It did
+        worse than D: 78% landed and a score of 165 on the same 1,000 flights (−26, CI −33 to −18). The reason is
+        <code>tanh</code>: with a loop of 1.0, a memory node hits +1 or −1 within about 20 steps and stays there for
+        96–100% of the flight. It becomes a latch, a constant, not a running total. Evolution cut its links to the
+        actions (6 at generation 20, none in the winner), and switching it off again changes no flight.</li>
       <li><strong>The steady wind still wins.</strong> D fails far less in light and moderate wind (6% near calm,
         against 14–24% for the others), but in all four runs a strong steady push failed every time.</li>
     </ul>
     <p>Why doesn't evolution use memory that should help? A loop's weight starts random (or, in run D, at 1.0) and
       mutation moves it freely, so at first memory mostly adds noise. To pay off, a genome needs several weights tuned
       together across time, and the simpler reflex networks outscore it first. Run D's loop weights ended at −0.35
-      and +1.65: one flips sign every step instead of adding up. Ideas to try next: freeze the loop weight at 1.0 so the
-      node can only integrate, train in steady wind first and add gusts later (a curriculum), or give the network
-      its previous action as an extra input.</p>
+      and +1.65: one flips sign every step instead of adding up. Freezing the loop at 1.0 (run E) swapped that problem
+      for saturation. A memory node that really integrates needs to stay out of <code>tanh</code>'s flat ends: a
+      leaky loop (around 0.9) with a linear activation, so it keeps a fading sum of recent drift. Other ideas: train in
+      steady wind first and add gusts later (a curriculum), or give the network its previous action as an extra
+      input.</p>
   </div>
 </section>
 
