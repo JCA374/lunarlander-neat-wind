@@ -62,6 +62,8 @@ def main():
     ap.add_argument('--reeval-top', type=int, default=0,
                     help='re-fly the best N genomes of each generation on more episodes (0 = off)')
     ap.add_argument('--reeval-episodes', type=int, default=30, help='extra episodes for --reeval-top')
+    ap.add_argument('--curriculum', default=None, metavar='G0,G1',
+                    help='train in a steady one-sided push until G0, blend to the real wind by G1')
     args = ap.parse_args()
 
     pop, config, run_dir = build_population(args)
@@ -73,7 +75,8 @@ def main():
         json.dump(vars(args), fh, indent=2)
 
     evaluator = Evaluator(config, episodes=args.episodes, workers=args.workers,
-                          reeval_top=args.reeval_top, reeval_episodes=args.reeval_episodes)
+                          reeval_top=args.reeval_top, reeval_episodes=args.reeval_episodes,
+                          curriculum=tuple(map(int, args.curriculum.split(','))) if args.curriculum else None)
     recorder = EvolutionRecorder(run_dir, config, evaluator, pop.reproduction, args.generations)
     if args.resume:
         recorder.resume_from(start)

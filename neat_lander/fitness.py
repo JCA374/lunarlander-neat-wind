@@ -29,11 +29,11 @@ def reeval_seeds(generation, episodes):
     return [int(s) for s in rng.integers(0, TRAIN_SEED_MAX, episodes)]
 
 
-def fly(genome, config, seeds):
+def fly(genome, config, seeds, steady=0.0):
     """Fly a genome on each seed; returns a summary dict (the mean reward is the fitness)."""
     net = make_net(genome, config)
     env = make_env()
-    eps = [run_episode(net, s, env=env) for s in seeds]
+    eps = [run_episode(net, s, env=env, steady=steady) for s in seeds]
     env.close()
     return summarize(eps)
 
@@ -67,8 +67,16 @@ def _init_worker(config):
 
 
 def _fly_job(args):
-    genome, seeds = args
-    return fly(genome, _config, seeds)
+    genome, seeds, steady = args if len(args) == 3 else (*args, 0.0)
+    return fly(genome, _config, seeds, steady)
+
+
+def curriculum_steady(generation, curriculum):
+    """Weight of the steady push in training: 1 until curriculum[0], fading to 0 at curriculum[1]."""
+    if not curriculum:
+        return 0.0
+    g0, g1 = curriculum
+    return float(np.clip((g1 - generation) / max(1, g1 - g0), 0.0, 1.0))
 
 
 class Evaluator(BaseReporter):
@@ -78,8 +86,11 @@ class Evaluator(BaseReporter):
     keeps each genome's summary in `self.results` for the logger.
     """
 
-    def __init__(self, config, episodes=5, workers=None, reeval_top=0, reeval_episodes=0):
+    def __init__(self, config, episodes=5, workers=None, reeval_top=0, reeval_episodes=0, curriculum=None):
         self.episodes = episodes
+        # Curriculum (g0, g1): training flies a steady one-sided push until g0, blends to the real gusty wind
+        # by g1. Validation always flies the real task.
+        self.curriculum = curriculum
         # Five windy episodes rank the population well overall but pick lucky genomes at the top, so
         # the best `reeval_top` genomes fly `reeval_episodes` more before elites and species are chosen
         self.reeval_top = reeval_top
@@ -93,14 +104,15 @@ class Evaluator(BaseReporter):
 
     def __call__(self, genomes, config):
         seeds = training_seeds(self.generation, self.episodes)
-        summaries = self.pool.map(_fly_job, [(g, seeds) for _, g in genomes])
+        steady = curriculum_steady(self.generation, self.curriculum)
+        summaries = self.pool.map(_fly_job, [(g, seeds, steady) for _, g in genomes])
         self.results = {}
         for (gid, genome), s in zip(genomes, summaries):
             genome.fitness = s['fitness']
             self.results[gid] = s
         if self.reeval_top and self.reeval_episodes:
             top = sorted(genomes, key=lambda kv: -kv[1].fitness)[:self.reeval_top]
-            extra = self.pool.map(_fly_job, [(g, reeval_seeds(self.generation, self.reeval_episodes))
+            extra = self.pool.map(_fly_job, [(g, reeval_seeds(self.generation, self.reeval_episodes), steady)
                                              for _, g in top])
             n0, n1 = self.episodes, self.reeval_episodes
             for (gid, genome), s in zip(top, extra):
@@ -126,7 +138,8 @@ class Evaluator(BaseReporter):
     def __getstate__(self):
         # neat checkpoints pickle the species set, which holds the reporters; skip the pool
         return {'episodes': self.episodes, 'generation': self.generation, 'results': {}, 'pool': None,
-                'reeval_top': self.reeval_top, 'reeval_episodes': self.reeval_episodes}
+                'reeval_top': self.reeval_top, 'reeval_episodes': self.reeval_episodes,
+                'curriculum': self.curriculum}
 
     def close(self):
         self.pool.close()

@@ -34,6 +34,12 @@ def seed_wind(env, seed):
     env.unwrapped.torque_idx = int(rng.integers(-9999, 9999))
 
 
+def steady_push(seed):
+    """The constant sideways force of a curriculum flight: 30-100% of WIND_POWER, either direction."""
+    rng = np.random.default_rng([int(seed), 11])
+    return float(rng.choice([-1.0, 1.0]) * rng.uniform(0.3, 1.0) * WIND_POWER)
+
+
 def wind_force(env):
     """The sideways wind force the next env.step will apply (the same formula as gymnasium)."""
     u = env.unwrapped
@@ -69,18 +75,23 @@ def choose_action(net, obs):
     return int(np.argmax(net.activate(obs)))
 
 
-def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
+def run_episode(net, seed, env=None, frames=False, path=False, trace=False, steady=0.0):
     """Fly one episode. Returns a dict with reward, steps, outcome and optional recordings:
 
     frames: rgb arrays, path: lander positions in frame pixels,
     trace: per-step observation, action and every node's value (for drawing a live network).
     'reward' is the plain env score; 'fitness' adds the centre-landing bonus.
     With frames, path or trace, 'wind' holds the sideways wind force at each step.
+    steady (0..1, curriculum training only): blend Gymnasium's gusts (weight 1 - steady) with one constant
+    push for the whole flight (weight steady, see steady_push). 0 is the real task.
     """
     own_env = env is None
     if own_env:
         env = make_env('rgb_array' if frames else None)
     seed_wind(env, seed)        # before reset: reset already takes one step in the wind
+    u = env.unwrapped
+    u.wind_power, u.turbulence_power = WIND_POWER * (1 - steady), TURBULENCE_POWER * (1 - steady)
+    push = steady * steady_push(seed) if steady else 0.0
     if hasattr(net, 'reset'):
         net.reset()             # a recurrent network starts every flight with a blank memory
     obs, _ = env.reset(seed=int(seed))
@@ -95,12 +106,14 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
         if path:
             out['path'].append(_lander_px(env))
         if record_wind:
-            out['wind'].append(wind_force(env))
+            out['wind'].append(wind_force(env) + (push if push and not _touching(env) else 0.0))
         action = choose_action(net, obs)
         if trace:
             out['states'].append(np.array(obs))
             out['actions'].append(action)
             out['values'].append(node_values(net))
+        if push and not _touching(env):     # like Gymnasium's wind: only while both legs are off the ground
+            u.lander.ApplyForceToCenter((push, 0.0), True)
         obs, reward, terminated, truncated, _ = env.step(action)
         out['reward'] += float(reward)
         out['steps'] = out.get('steps', 0) + 1
@@ -128,3 +141,8 @@ def run_episode(net, seed, env=None, frames=False, path=False, trace=False):
 def _lander_px(env):
     p = env.unwrapped.lander.position
     return (p.x * SCALE, VIEW_H - p.y * SCALE)
+
+
+def _touching(env):
+    u = env.unwrapped
+    return u.legs[0].ground_contact or u.legs[1].ground_contact
