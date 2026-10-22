@@ -1,0 +1,16 @@
+{
+  "generation": 453,
+  "genome": 64794,
+  "training_fitness": 142.57695229800046,
+  "validation": {
+    "fitness": 155.38516190667949,
+    "reward": 136.91558150827262,
+    "landed": 0.71,
+    "centred": 0.41,
+    "crashed": 0.23,
+    "steps": 596.45,
+    "abs_x": 0.613795177368316
+  },
+  "hidden": 3,
+  "connections": 27
+}

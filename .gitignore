@@ -13,6 +13,7 @@ runs/*
 !runs/run_wind_c/
 !runs/run_wind_d/
 !runs/run_wind_e/
+!runs/run_wind_f/
 runs/*/checkpoints/
 results/**/flights.jsonl.gz
 *.log
